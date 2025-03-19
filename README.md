@@ -56,8 +56,11 @@ api-gateway/
 │   │   │── services/                     # Логика работы с внешними сервисами
 │   │   │   │── IpService.js              # Логика работы с IP (Одиночка)
 │   │   │   │── TLSService.js             # Настройка и обновление сертификатов
+|   |   |   │── LoggerService.js          #Логика логирования
+│   │   │   │── UUIDService.js            # Логика генерации UUID
 │   │   │── workers/                     # Потоки (Worker Threads)
-│   │   │   │── Worker.js                 # Логика обработки запроса в потоке (Команда)
+│   │   │   │── WorkerManager.js          # Манаджер потоков
+|   |   |   |── Worker.js                   # Логика обработки запроса в потоке (Команда)
 │   │   │── middleware/                   # Middleware для валидации и логирования (Decorator)
 │   │   │   │── LoggerMiddleware.js       # Логирование запросов
 │   │   │   │── RateLimiterMiddleware.js  # Ограничение запросов (Token Bucket)
