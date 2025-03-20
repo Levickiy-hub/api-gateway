@@ -9,8 +9,5 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
-  "dependencies": {
-    "ws": "^8.18.0"
-  }
+  "type": "module"
 }

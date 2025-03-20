@@ -10,7 +10,8 @@ class WebSocketProxyService {
     handleUpgrade(req, clientSocket, head) {
         const url = req.url;
         const targetUrl = routes[url];
-
+        console.log(req.headers);
+        console.log(head)
         if (!targetUrl) {
             console.log(`❌ No backend service found for ${url}`);
             clientSocket.destroy();
@@ -26,8 +27,11 @@ class WebSocketProxyService {
 
             this.completeHandshake(req, clientSocket);
 
+            backendSocket.write(head); // 🔄 Отправляем head на backend (важно!)
+
             // Двусторонний прокси: передаем данные между клиентом и бэкендом
-            clientSocket.pipe(backendSocket).pipe(clientSocket);
+            clientSocket.pipe(backendSocket);
+            backendSocket.pipe(clientSocket);
         });
 
         // Обрабатываем ошибки соединения с бэкендом
