@@ -1,0 +1,4 @@
+# ignore ALL .log files
+*.log
+src/logs/app.log
+/node_modules

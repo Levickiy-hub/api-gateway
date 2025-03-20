@@ -66,3 +66,38 @@
 🔹 Тело: Нет данных
 [2025-03-19T19:01:20.506Z] INFO: 🆔 [28771ee3-9bef-4007-9a0d-80d5cd72c04a] 📤 Исходящий ответ: 200 OK
 🔹 Время обработки: 119.41 мс'}
+[2025-03-20T06:31:41.559Z] INFO: 🆔 [6b657259-f555-4bcc-9b34-ab272df24f97] 📥 Входящий запрос: GET /service2
+🔹 Заголовки: {"host":"localhost:3000","connection":"keep-alive","sec-ch-ua":"\"Chromium\";v=\"134\", \"Not:A-Brand\";v=\"24\", \"Google Chrome\";v=\"134\"","sec-ch-ua-mobile":"?0","sec-ch-ua-platform":"\"Windows\"","dnt":"1","upgrade-insecure-requests":"1","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36","accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7","sec-fetch-site":"none","sec-fetch-mode":"navigate","sec-fetch-user":"?1","sec-fetch-dest":"document","accept-encoding":"gzip, deflate, br, zstd","accept-language":"ru,en;q=0.9"}
+🔹 Тело: Нет данных
+[2025-03-20T06:31:41.588Z] INFO: 🆔 [6b657259-f555-4bcc-9b34-ab272df24f97] 📤 Исходящий ответ: 200 OK
+🔹 Время обработки: 29.63 мс'}
+[2025-03-20T06:31:41.626Z] INFO: 🆔 [4c133029-3ae9-43fd-a1ff-7504053a6b26] 📥 Входящий запрос: GET /favicon.ico
+🔹 Заголовки: {"host":"localhost:3000","connection":"keep-alive","sec-ch-ua-platform":"\"Windows\"","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36","sec-ch-ua":"\"Chromium\";v=\"134\", \"Not:A-Brand\";v=\"24\", \"Google Chrome\";v=\"134\"","dnt":"1","sec-ch-ua-mobile":"?0","accept":"image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8","sec-fetch-site":"same-origin","sec-fetch-mode":"no-cors","sec-fetch-dest":"image","referer":"http://localhost:3000/service2","accept-encoding":"gzip, deflate, br, zstd","accept-language":"ru,en;q=0.9"}
+🔹 Тело: Нет данных
+[2025-03-20T06:31:41.627Z] INFO: 🆔 [4c133029-3ae9-43fd-a1ff-7504053a6b26] 📤 Исходящий ответ: 404 Not Found
+🔹 Время обработки: 1.21 мс'}
+[2025-03-20T06:32:09.740Z] INFO: 🆔 [16cccd71-6d93-43e7-909e-c76ad48915db] 📥 Входящий запрос: GET /service2
+🔹 Заголовки: {"host":"localhost:3000","connection":"keep-alive","cache-control":"max-age=0","sec-ch-ua":"\"Chromium\";v=\"134\", \"Not:A-Brand\";v=\"24\", \"Google Chrome\";v=\"134\"","sec-ch-ua-mobile":"?0","sec-ch-ua-platform":"\"Windows\"","dnt":"1","upgrade-insecure-requests":"1","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36","accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7","sec-fetch-site":"none","sec-fetch-mode":"navigate","sec-fetch-user":"?1","sec-fetch-dest":"document","accept-encoding":"gzip, deflate, br, zstd","accept-language":"ru,en;q=0.9"}
+🔹 Тело: Нет данных
+[2025-03-20T06:32:09.756Z] INFO: 🆔 [16cccd71-6d93-43e7-909e-c76ad48915db] 📤 Исходящий ответ: 200 OK
+🔹 Время обработки: 15.99 мс'}
+[2025-03-20T06:35:55.070Z] INFO: 🆔 [622ee908-601e-4e1e-aad1-1b74657bcdc6] 📥 Входящий запрос: GET /service2
+🔹 Заголовки: {"host":"localhost:3000","connection":"keep-alive","cache-control":"max-age=0","sec-ch-ua":"\"Chromium\";v=\"134\", \"Not:A-Brand\";v=\"24\", \"Google Chrome\";v=\"134\"","sec-ch-ua-mobile":"?0","sec-ch-ua-platform":"\"Windows\"","dnt":"1","upgrade-insecure-requests":"1","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36","accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7","sec-fetch-site":"none","sec-fetch-mode":"navigate","sec-fetch-user":"?1","sec-fetch-dest":"document","accept-encoding":"gzip, deflate, br, zstd","accept-language":"ru,en;q=0.9"}
+🔹 Тело: Нет данных
+[2025-03-20T06:35:55.087Z] INFO: 🆔 [622ee908-601e-4e1e-aad1-1b74657bcdc6] 📤 Исходящий ответ: 200 OK
+🔹 Время обработки: 16.70 мс'}
+[2025-03-20T06:35:55.924Z] INFO: 🆔 [bd1c694a-31ff-4f1a-a402-361d7e54f09b] 📥 Входящий запрос: GET /service2
+🔹 Заголовки: {"host":"localhost:3000","connection":"keep-alive","cache-control":"max-age=0","sec-ch-ua":"\"Chromium\";v=\"134\", \"Not:A-Brand\";v=\"24\", \"Google Chrome\";v=\"134\"","sec-ch-ua-mobile":"?0","sec-ch-ua-platform":"\"Windows\"","dnt":"1","upgrade-insecure-requests":"1","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36","accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7","sec-fetch-site":"none","sec-fetch-mode":"navigate","sec-fetch-user":"?1","sec-fetch-dest":"document","accept-encoding":"gzip, deflate, br, zstd","accept-language":"ru,en;q=0.9"}
+🔹 Тело: Нет данных
+[2025-03-20T06:35:55.940Z] INFO: 🆔 [bd1c694a-31ff-4f1a-a402-361d7e54f09b] 📤 Исходящий ответ: 200 OK
+🔹 Время обработки: 16.05 мс'}
+[2025-03-20T08:35:52.630Z] INFO: 🆔 [2a631065-54a5-4988-a546-d2e39283b83b] 📥 Входящий запрос: GET /service2
+🔹 Заголовки: {"host":"localhost:3000","connection":"keep-alive","cache-control":"max-age=0","sec-ch-ua":"\"Chromium\";v=\"134\", \"Not:A-Brand\";v=\"24\", \"Google Chrome\";v=\"134\"","sec-ch-ua-mobile":"?0","sec-ch-ua-platform":"\"Windows\"","dnt":"1","upgrade-insecure-requests":"1","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36","accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7","sec-fetch-site":"none","sec-fetch-mode":"navigate","sec-fetch-user":"?1","sec-fetch-dest":"document","accept-encoding":"gzip, deflate, br, zstd","accept-language":"ru,en;q=0.9"}
+🔹 Тело: Нет данных
+[2025-03-20T08:35:52.654Z] INFO: 🆔 [2a631065-54a5-4988-a546-d2e39283b83b] 📤 Исходящий ответ: 200 OK
+🔹 Время обработки: 25.91 мс'}
+[2025-03-20T08:35:56.671Z] INFO: 🆔 [d7509e1d-6604-42ad-ac3a-cccd610d04df] 📥 Входящий запрос: GET /service2
+🔹 Заголовки: {"host":"localhost:3000","connection":"keep-alive","cache-control":"max-age=0","sec-ch-ua":"\"Chromium\";v=\"134\", \"Not:A-Brand\";v=\"24\", \"Google Chrome\";v=\"134\"","sec-ch-ua-mobile":"?0","sec-ch-ua-platform":"\"Windows\"","dnt":"1","upgrade-insecure-requests":"1","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36","accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7","sec-fetch-site":"none","sec-fetch-mode":"navigate","sec-fetch-user":"?1","sec-fetch-dest":"document","accept-encoding":"gzip, deflate, br, zstd","accept-language":"ru,en;q=0.9"}
+🔹 Тело: Нет данных
+[2025-03-20T08:35:56.688Z] INFO: 🆔 [d7509e1d-6604-42ad-ac3a-cccd610d04df] 📤 Исходящий ответ: 200 OK
+🔹 Время обработки: 17.23 мс'}

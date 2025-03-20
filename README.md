@@ -42,6 +42,7 @@ api-gateway/
 │   │   │   │── AuthService.js          # Аутентификация (Фабричный метод)
 │   │   │   │── SecurityService.js      # Защита API (CORS, Rate Limit, Chain of Responsibility)
 │   │   │   │── MonitoringService.js    # Мониторинг и логирование (Наблюдатель)
+|   |   |   │── WebSocketProxyService.js # Будет перенаправлять WebSocket-соединения
 │   │   │── dtos/                       # Data Transfer Objects (DTO)
 │   │   │   │── RequestDto.js           # DTO для запросов
 │   │   │   │── ResponseDto.js          # DTO для ответов
@@ -71,6 +72,7 @@ api-gateway/
 │   │   │── controllers/                   # Контроллеры API Gateway
 │   │   │   │── GatewayController.js       # Контроллер запросов (Фабричный метод)
 │   │   │   │── AuthController.js          # Контроллер аутентификации
+|   |   |   │── WebSocketController.js     # WebSocket-контроллер
 │   │   │── routes/                        # Настройки маршрутизации (Шаблонный метод)
 │   │   │   │── routes.js                  # Основные маршруты API Gateway
 │   │── server.js                           # Точка входа в приложение (Entry Point)
