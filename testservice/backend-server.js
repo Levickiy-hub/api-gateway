@@ -1,37 +1,42 @@
-import { WebSocketServer } from 'ws';
+import http from 'http';
+import { Server } from 'socket.io';
 
-const PORT = 5003;
+// Создание HTTP сервера
+const server = http.createServer();
 
-// Создаем WebSocket сервер
-const wss = new WebSocketServer({ port: PORT }, () => {
-    console.log(`🚀 WebSocket server is running on ws://localhost:${PORT}`);
+// Создание WebSocket сервера с использованием socket.io
+const io = new Server(server, {
+    cors: {
+        origin: "*", // Разрешаем все домены для кросс-доменных запросов
+    }
 });
 
-// Обработчик подключения клиента
-wss.on('connection', (ws, req) => {
-    console.log(`✅ Client connected: ${req.socket.remoteAddress}`);
+// Обработка подключения клиента
+io.on('connection', (socket) => {
+    console.log('✅ Client connected');
 
-    // Логируем информацию о запросе на подключение
-    console.log(`🔗 Connection request received: ${req.method} ${req.url}`);
-    console.log('Headers:', req.headers);
-
-    // Обработка сообщений от клиента
-    ws.on('message', (message) => {
+    // Получение сообщений от клиента
+    socket.on('message', (message) => {
         console.log(`📩 Received message from client: ${message}`);
-
-        // Преобразуем данные и отправляем обратно клиенту
+        
+        // Отправка ответа обратно клиенту
         const responseMessage = `📝 Echo: ${message}`;
         console.log(`📤 Sending echo response: ${responseMessage}`);
-        ws.send(responseMessage);
+        socket.emit('message', responseMessage);
     });
 
-    // Обработчик отключения клиента
-    ws.on('close', () => {
+    // Обработка отключения клиента
+    socket.on('disconnect', () => {
         console.log('❌ Client disconnected');
     });
 
-    // Обработчик ошибок
-    ws.on('error', (err) => {
-        console.error('WebSocket error:', err);
+    // Обработка ошибок
+    socket.on('error', (err) => {
+        console.error('Socket.io error:', err);
     });
+});
+
+// Запуск сервера на порту 3000
+server.listen(5003, () => {
+    console.log('🚀 WebSocket server running on http://localhost:5003');
 });

@@ -1,20 +1,25 @@
-import { WebSocket } from 'ws';
+import { io } from 'socket.io-client';
 
-const ws = new WebSocket('ws://localhost:3000/ws-test');
+// Создание подключения к WebSocket серверу
+const socket = io('http://localhost:3000/ws-test');
 
-ws.onopen = () => {
+// Подключение успешно установлено
+socket.on('connect', () => {
     console.log('Connected to WebSocket server');
-    ws.send('Hello, server!');
-};
+    socket.emit('message', 'Hello, server!'); // Отправка сообщения серверу
+});
 
-ws.onmessage = (event) => {
-    console.log('Received message from server:', event.data);
-};
+// Получение сообщений от сервера
+socket.on('message', (message) => {
+    console.log('Received message from server:', message);
+});
 
-ws.onerror = (error) => {
-    console.error('WebSocket error:', error);
-};
-
-ws.onclose = () => {
+// Обработка отключения
+socket.on('disconnect', () => {
     console.log('WebSocket connection closed');
-};
+});
+
+// Обработка ошибок
+socket.on('error', (err) => {
+    console.error('Socket.io error:', err);
+});
