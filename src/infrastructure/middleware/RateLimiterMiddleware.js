@@ -13,6 +13,6 @@ export default async function rateLimiter(requestData) {
         requestData.remoteAddress || 'unknown';
 
     const index = getBufferIndex(ip);
-    if (index === -1) return true;
-    return await rateLimiterService.shouldAllowRequest(index);
+    if (index === -1) return false;
+    return await rateLimiterService.isRequestAllowed(index);
 }

@@ -5,7 +5,7 @@ export default class RateLimiterService {
         this.windowMs = windowMs;
     }
 
-    async shouldAllowRequest(ip){
+    async isRequestAllowed(ip){
         const now = Date.now();
         let userData = await this.rateLimiterRepository.get(ip);
 
@@ -21,6 +21,6 @@ export default class RateLimiterService {
         }
 
         await this.rateLimiterRepository.set(ip,userData,this.windowMs);
-        return userData.count <= this.rateLimit;
+        return userData.count >= this.rateLimit;
     }
 }

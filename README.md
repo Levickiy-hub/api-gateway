@@ -67,12 +67,17 @@ api-gateway/
 │   │   │   │── RateLimiterMiddleware.js  # Ограничение запросов (Token Bucket)
 │   │   │   │── ErrorHandlerMiddleware.js # Глобальная обработка ошибок
 │   │   │── config/                       # Конфигурация проекта (Конфигуратор)
+│   │   │   │── ConfigValidator.js         # Валидатор конфигурации (внутри инфраструктуры)
 │   │   │   │── Config.js                 # Загрузка конфигурации (env, json)
+│   │   │── repositories/                # Репозитории (паттерн Repository)
+│   │   │   │── ConfigRepository.js      # Репозиторий конфигурации (работа с файлами конфигурации)
+|   |   |   │──RateLimiterRepository.js    # Репозиторий для хранения и работы количества запросов в окно времени
 │   │── interfaces/                        # (Interface Layer - контроллеры и API)
 │   │   │── controllers/                   # Контроллеры API Gateway
 │   │   │   │── GatewayController.js       # Контроллер запросов (Фабричный метод)
 │   │   │   │── AuthController.js          # Контроллер аутентификации
 |   |   |   │── WebSocketController.js     # WebSocket-контроллер
+|   |   |   │── ServerManager.js           # Логика запуска сервера и воркеров (Фасад)
 │   │   │── routes/                        # Настройки маршрутизации (Шаблонный метод)
 │   │   │   │── routes.js                  # Основные маршруты API Gateway
 │   │── server.js                           # Точка входа в приложение (Entry Point)
