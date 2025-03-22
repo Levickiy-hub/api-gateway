@@ -1,6 +1,6 @@
-import TimeoutManager from '../../infrastructure/services/TimeoutManager.js';
-import IdleChecker from '../../infrastructure/services/IdleChecker.js';
-import ConnectionDurationChecker from '../../infrastructure/services/ConnectionDurationChecker.js';
+import TimeoutManager from './TimeoutManager.js';
+import IdleChecker from './IdleChecker.js';
+import ConnectionDurationChecker from './ConnectionDurationChecker.js';
 
 export default class SlowlorisService {
     constructor(socket, config) {

@@ -1,14 +1,8 @@
 import http from 'http';
 import https from 'https';
-import routes from '../../interfaces/routes/routes.js'
 
 export default class ProxyService {
-    static async proxyRequest(requestData) {
-        const targetUrl = routes[requestData.url];
-        if (!targetUrl) {
-            return { statusCode: 404, headers: {}, body: 'Not Found' }
-        }
-
+    static async proxyRequest(requestData,targetUrl) {
         return new Promise((resolve, reject) => {
             const target = new URL(targetUrl);
             const protocol = target.protocol === 'https' ? https : http;
