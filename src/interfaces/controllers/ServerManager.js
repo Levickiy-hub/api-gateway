@@ -3,15 +3,15 @@ import WorkerManager from '../../infrastructure/workers/WorkerManager.js';
 import { loggerMiddleware } from '../../infrastructure/middleware/LoggerMiddleware.js'
 import WebSocketController from './WebSocketController.js'
 import SlowlorisService from '../../infrastructure/services/SlowlorisService.js'; // Импорт вашего сервиса
-import Config from '../../infrastructure/config/Config.js';
 
 export default class ServerManager {
-    constructor(port, numCPUs) {
-        this.port = port;
-        this.workerManager = new WorkerManager(numCPUs);
+    constructor(config, routes) {
+        this.port = config.getGlobalConfig().port;
+        this.workerManager = new WorkerManager(config.getGlobalConfig().numCPUs);
         this.webSocketController = new WebSocketController();
         this.server = this.createHttpServer();
-        this.config = Config;
+        this.config = config;
+        this.routes = routes;
     }
 
     createHttpServer() {
@@ -23,7 +23,7 @@ export default class ServerManager {
                     res.headers = workerResponse.headers;
                     res.end(workerResponse.body);
                 })
-                .catch(err=>{
+                .catch(err => {
                     res.statusCode = 500;
                     res.end('Internal Server Error');
                     console.error(err);

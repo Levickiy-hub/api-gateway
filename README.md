@@ -60,7 +60,7 @@ api-gateway/
 |   |   |   │── LoggerService.js          #Логика логирования
 │   │   │   │── UUIDService.js            # Логика генерации UUID
 │   │   │── workers/                     # Потоки (Worker Threads)
-│   │   │   │── WorkerManager.js          # Манаджер потоков
+│   │   │   │── WorkerManager.js          # Менеджер потоков (для распределения работы по воркерам)
 |   |   |   |── Worker.js                   # Логика обработки запроса в потоке (Команда)
 │   │   │── middleware/                   # Middleware для валидации и логирования (Decorator)
 │   │   │   │── LoggerMiddleware.js       # Логирование запросов
@@ -71,7 +71,7 @@ api-gateway/
 │   │   │   │── Config.js                 # Загрузка конфигурации (env, json)
 │   │   │── repositories/                # Репозитории (паттерн Repository)
 │   │   │   │── ConfigRepository.js      # Репозиторий конфигурации (работа с файлами конфигурации)
-|   |   |   │──RateLimiterRepository.js    # Репозиторий для хранения и работы количества запросов в окно времени
+|   |   |   │── RateLimiterRepository.js   # Репозиторий для хранения и работы с количеством запросов
 │   │── interfaces/                        # (Interface Layer - контроллеры и API)
 │   │   │── controllers/                   # Контроллеры API Gateway
 │   │   │   │── GatewayController.js       # Контроллер запросов (Фабричный метод)

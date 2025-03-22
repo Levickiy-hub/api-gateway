@@ -1,4 +1,4 @@
-import Config from "../../config/Config.js";
+import Config from "../../infrastructure/config/Config.js";
 import RateLimiterRepository from "../repositories/RateLimiterRepository.js";
 import RateLimiterService from "../../application/services/RateLimiterService.js";
 import {getBufferIndex} from "../services/IpService.js";

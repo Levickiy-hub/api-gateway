@@ -1,89 +1,101 @@
 {
-    "global": {
-      "numWorkers": 4,
-      "rateLimit": {
-        "maxRequests": 1000,
-        "windowMs": 60000
-      },
-      "TIMEOUT_MS": 1500,
-      "MAX_IDLE_TIME_MS": 10000,
-      "MAX_CONNECTION_DURATION_MS": 900000,
-      "cors": {
-        "allowedOrigins": ["*"],
-        "allowedMethods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allowedHeaders": ["Content-Type", "Authorization"],
-        "exposedHeaders": [],
-        "allowCredentials": true,
-        "maxAge": 86400
-      }
+  "global": {
+    "numWorkers": 4,
+    "rateLimit": {
+      "maxRequests": 1000,
+      "windowMs": 60000
     },
-    "services": {
-      "service1": {
-        "endpoints": {
-          "/api/v1/users": {
-            "targets": [
-              { "url": "http://localhost:3001/users", "protocol": "http" },
-              { "url": "http://localhost:3002/users", "protocol": "http" }
-            ],
-            "loadBalancingStrategy": "round-robin",
-            "rateLimit": {
-              "maxRequests": 500,
-              "windowMs": 60000
-            },
-            "cors": {
-              "allowedOrigins": ["http://example.com"],
-              "allowedMethods": ["GET", "POST"],
-              "allowedHeaders": ["Content-Type"],
-              "allowCredentials": false
-            },
+    "timeouts": {
+      "initial": 1500,
+      "idle": 10000,
+      "maxDuration": 900000
+    },
+    "cors": {
+      "allowedOrigins": ["*"],
+      "allowedMethods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      "allowedHeaders": ["Content-Type", "Authorization"],
+      "exposedHeaders": [],
+      "allowCredentials": true,
+      "maxAge": 86400
+    }
+  },
+  "services": [
+    {
+      "name": "service1",
+      "endpoints": [
+        {
+          "path": "/api/v1/users",
+          "targets": [
+            { "url": "http://localhost:3001/users", "protocol": "http" },
+            { "url": "http://localhost:3002/users", "protocol": "http" }
+          ],
+          "loadBalancingStrategy": "round-robin",
+          "rateLimit": {
+            "maxRequests": 500,
+            "windowMs": 60000
+          },
+          "cors": {
+            "allowedOrigins": ["http://example.com"],
+            "allowedMethods": ["GET", "POST"],
+            "allowedHeaders": ["Content-Type"],
+            "allowCredentials": false
+          },
+          "security": {
             "secured": true,
             "requireJwt": true,
             "public": true
+          }
+        },
+        {
+          "path": "/api/v1/orders",
+          "targets": [
+            { "url": "http://localhost:3003/orders", "protocol": "http" }
+          ],
+          "rateLimit": {
+            "maxRequests": 300,
+            "windowMs": 60000
           },
-          "/api/v1/orders": {
-            "targets": [
-              { "url": "http://localhost:3003/orders", "protocol": "http" }
-            ],
-            "rateLimit": {
-              "maxRequests": 300,
-              "windowMs": 60000
-            },
-            "cors": {
-              "allowedOrigins": ["http://example.com"],
-              "allowedMethods": ["GET"],
-              "allowedHeaders": ["Content-Type"],
-              "allowCredentials": false
-            },
+          "cors": {
+            "allowedOrigins": ["http://example.com"],
+            "allowedMethods": ["GET"],
+            "allowedHeaders": ["Content-Type"],
+            "allowCredentials": false
+          },
+          "security": {
             "secured": true,
             "requireJwt": false,
             "public": false
           }
         }
-      },
-      "service2": {
-        "endpoints": {
-          "/api/v2/payments": {
-            "targets": [
-              { "url": "https://localhost:4001/payments", "protocol": "https" },
-              { "url": "https://localhost:4002/payments", "protocol": "https" }
-            ],
-            "loadBalancingStrategy": "random",
-            "rateLimit": {
-              "maxRequests": 200,
-              "windowMs": 60000
-            },
-            "cors": {
-              "allowedOrigins": ["https://secure-site.com"],
-              "allowedMethods": ["GET", "POST", "DELETE"],
-              "allowedHeaders": ["Authorization"],
-              "allowCredentials": true
-            },
+      ]
+    },
+    {
+      "name": "service2",
+      "endpoints": [
+        {
+          "path": "/api/v2/payments",
+          "targets": [
+            { "url": "https://localhost:4001/payments", "protocol": "https" },
+            { "url": "https://localhost:4002/payments", "protocol": "https" }
+          ],
+          "loadBalancingStrategy": "random",
+          "rateLimit": {
+            "maxRequests": 200,
+            "windowMs": 60000
+          },
+          "cors": {
+            "allowedOrigins": ["https://secure-site.com"],
+            "allowedMethods": ["GET", "POST", "DELETE"],
+            "allowedHeaders": ["Authorization"],
+            "allowCredentials": true
+          },
+          "security": {
             "secured": false,
             "requireJwt": false,
             "public": false
           }
         }
-      }
+      ]
     }
-  }
-  
+  ]
+}

@@ -2,82 +2,171 @@ export class ConfigValidator {
     static validateGlobalConfig(globalConfig) {
         if (!globalConfig) throw new Error('Global configuration is missing.');
 
-        if (globalConfig.rateLimit) {
-            const { maxRequests, windowMs } = globalConfig.rateLimit;
-            if (typeof maxRequests !== 'number' || maxRequests <= 0) {
-                throw new Error('Invalid maxRequests in global rate limit.');
-            }
-            if (typeof windowMs !== 'number' || windowMs <= 0) {
-                throw new Error('Invalid windowMs in global rate limit.');
-            }
+        // Проверка numWorkers
+        if (typeof globalConfig.numWorkers !== 'number' || globalConfig.numWorkers < 1) {
+            throw new Error('Invalid numWorkers: must be a number greater than 0.');
         }
 
-        const { TIMEOUT_MS, MAX_IDLE_TIME_MS, MAX_CONNECTION_DURATION_MS } = globalConfig;
-        if (typeof TIMEOUT_MS !== 'number' || TIMEOUT_MS <= 0) {
-            throw new Error('Invalid TIMEOUT_MS value.');
+        // Проверка rateLimit
+        if (!globalConfig.rateLimit) {
+            throw new Error('Missing rateLimit configuration.');
         }
-        if (typeof MAX_IDLE_TIME_MS !== 'number' || MAX_IDLE_TIME_MS <= 0) {
-            throw new Error('Invalid MAX_IDLE_TIME_MS value.');
+
+        const { maxRequests, windowMs } = globalConfig.rateLimit;
+        if (typeof maxRequests !== 'number' || maxRequests < 1) {
+            throw new Error('Invalid rateLimit.maxRequests: must be a number greater than 0.');
         }
-        if (typeof MAX_CONNECTION_DURATION_MS !== 'number' || MAX_CONNECTION_DURATION_MS <= 0) {
-            throw new Error('Invalid MAX_CONNECTION_DURATION_MS value.');
+        if (typeof windowMs !== 'number' || windowMs <= 0) {
+            throw new Error('Invalid rateLimit.windowMs: must be a positive number.');
         }
+
+        // Проверка timeouts
+        if (!globalConfig.timeouts) {
+            throw new Error('Missing timeouts configuration.');
+        }
+
+        const { initial, idle, maxDuration } = globalConfig.timeouts;
+        if (typeof initial !== 'number' || initial <= 0) {
+            throw new Error('Invalid timeouts.initial: must be a positive number.');
+        }
+        if (typeof idle !== 'number' || idle <= 0) {
+            throw new Error('Invalid timeouts.idle: must be a positive number.');
+        }
+        if (typeof maxDuration !== 'number' || maxDuration <= 0) {
+            throw new Error('Invalid timeouts.maxDuration: must be a positive number.');
+        }
+
+        // Проверка CORS
+        if (!globalConfig.cors) {
+            throw new Error('Missing CORS configuration.');
+        }
+
+        const { allowedOrigins, allowedMethods, allowedHeaders, exposedHeaders, allowCredentials, maxAge } = globalConfig.cors;
+
+        if (!Array.isArray(allowedOrigins)) {
+            throw new Error('Invalid cors.allowedOrigins: must be an array.');
+        }
+        if (!Array.isArray(allowedMethods)) {
+            throw new Error('Invalid cors.allowedMethods: must be an array.');
+        }
+        if (!Array.isArray(allowedHeaders)) {
+            throw new Error('Invalid cors.allowedHeaders: must be an array.');
+        }
+        if (!Array.isArray(exposedHeaders)) {
+            throw new Error('Invalid cors.exposedHeaders: must be an array.');
+        }
+        if (typeof allowCredentials !== 'boolean') {
+            throw new Error('Invalid cors.allowCredentials: must be a boolean.');
+        }
+        if (typeof maxAge !== 'number' || maxAge < 0) {
+            throw new Error('Invalid cors.maxAge: must be a non-negative number.');
+        }
+
+        console.log('Global configuration is valid.');
+        return true;
     }
 
-    static validateServiceConfig(serviceConfig) {
-        if (!serviceConfig || typeof serviceConfig !== 'object') {
-            throw new Error('Service configuration is missing or invalid.');
+    static validateServices(services, globalConfig) {
+        if (!services || !Array.isArray(services)) {
+            throw new Error('Invalid services: must be an array.');
         }
 
-        if (!serviceConfig.url || typeof serviceConfig.url !== 'string') {
-            throw new Error('Service URL is missing or invalid.');
-        }
-        if (!serviceConfig.protocol || !['http', 'https'].includes(serviceConfig.protocol)) {
-            throw new Error('Invalid protocol in service configuration.');
-        }
+        services.forEach((service, serviceIndex) => {
+            if (typeof service.name !== 'string' || !service.name.trim()) {
+                throw new Error(`Service at index ${serviceIndex} has an invalid name.`);
+            }
 
-        if (serviceConfig.rateLimit) {
-            const { maxRequests, windowMs } = serviceConfig.rateLimit;
-            if (typeof maxRequests !== 'number' || maxRequests <= 0) {
-                throw new Error(`Invalid maxRequests for service ${serviceConfig.url}`);
+            if (!service.endpoints || !Array.isArray(service.endpoints)) {
+                throw new Error(`Service "${service.name}" has an invalid endpoints array.`);
             }
-            if (typeof windowMs !== 'number' || windowMs <= 0) {
-                throw new Error(`Invalid windowMs for service ${serviceConfig.url}`);
-            }
-        }
+
+            service.endpoints.forEach((endpoint, endpointIndex) => {
+                if (typeof endpoint.path !== 'string' || !endpoint.path.startsWith('/')) {
+                    throw new Error(`Service "${service.name}" endpoint at index ${endpointIndex} has an invalid path.`);
+                }
+
+                if (!endpoint.targets || !Array.isArray(endpoint.targets) || endpoint.targets.length === 0) {
+                    throw new Error(`Service "${service.name}" endpoint "${endpoint.path}" has invalid targets.`);
+                }
+
+                endpoint.targets.forEach((target, targetIndex) => {
+                    if (typeof target.url !== 'string' || !target.url.startsWith('http')) {
+                        throw new Error(`Service "${service.name}" endpoint "${endpoint.path}" target at index ${targetIndex} has an invalid URL.`);
+                    }
+
+                    if (typeof target.protocol !== 'string' || !['http', 'https'].includes(target.protocol)) {
+                        throw new Error(`Service "${service.name}" endpoint "${endpoint.path}" target at index ${targetIndex} has an invalid protocol.`);
+                    }
+                });
+
+                if (endpoint.loadBalancingStrategy && !['round-robin', 'random', 'least-connections'].includes(endpoint.loadBalancingStrategy)) {
+                    throw new Error(`Service "${service.name}" endpoint "${endpoint.path}" has an invalid loadBalancingStrategy.`);
+                }
+
+                // Проверка rateLimit
+                if (!endpoint.rateLimit) {
+                    console.warn(`Service "${service.name}" endpoint "${endpoint.path}" is missing rateLimit. Using global rateLimit:`, globalConfig.rateLimit);
+                    endpoint.rateLimit = globalConfig.rateLimit;
+                }
+
+                if (typeof endpoint.rateLimit.maxRequests !== 'number' || endpoint.rateLimit.maxRequests < 1) {
+                    throw new Error(`Service "${service.name}" endpoint "${endpoint.path}" has an invalid rateLimit.maxRequests.`);
+                }
+
+                if (typeof endpoint.rateLimit.windowMs !== 'number' || endpoint.rateLimit.windowMs <= 0) {
+                    throw new Error(`Service "${service.name}" endpoint "${endpoint.path}" has an invalid rateLimit.windowMs.`);
+                }
+
+                // Проверка CORS
+                if (!endpoint.cors) {
+                    console.warn(`Service "${service.name}" endpoint "${endpoint.path}" is missing CORS configuration. Using global CORS:`, globalConfig.cors);
+                    endpoint.cors = globalConfig.cors;
+                }
+
+                const { allowedOrigins, allowedMethods, allowedHeaders, allowCredentials } = endpoint.cors;
+
+                if (!Array.isArray(allowedOrigins) || allowedOrigins.length === 0) {
+                    throw new Error(`Service "${service.name}" endpoint "${endpoint.path}" has invalid cors.allowedOrigins.`);
+                }
+
+                if (!Array.isArray(allowedMethods) || allowedMethods.length === 0) {
+                    throw new Error(`Service "${service.name}" endpoint "${endpoint.path}" has invalid cors.allowedMethods.`);
+                }
+
+                if (!Array.isArray(allowedHeaders)) {
+                    throw new Error(`Service "${service.name}" endpoint "${endpoint.path}" has invalid cors.allowedHeaders.`);
+                }
+
+                if (typeof allowCredentials !== 'boolean') {
+                    throw new Error(`Service "${service.name}" endpoint "${endpoint.path}" has invalid cors.allowCredentials.`);
+                }
+
+                // Проверка security
+                if (!endpoint.security) {
+                    console.warn(`Service "${service.name}" endpoint "${endpoint.path}" is missing security configuration. Using default values.`);
+                    endpoint.security = { secured: false, requireJwt: false, public: true };
+                }
+
+                const { secured, requireJwt, public: isPublic } = endpoint.security;
+
+                if (typeof secured !== 'boolean' || typeof requireJwt !== 'boolean' || typeof isPublic !== 'boolean') {
+                    throw new Error(`Service "${service.name}" endpoint "${endpoint.path}" has invalid security settings.`);
+                }
+            });
+        });
+
+        console.log('Services configuration is valid.');
+        return true;
     }
 
     static validateConfig(config) {
-        if (!config.global) {
-            throw new Error('Global configuration is missing.');
+        try {
+            this.validateGlobalConfig(config.global);
+            this.validateServices(config.services, config.global);
+            return true; // Конфигурация прошла валидацию
+        } catch (error) {
+            console.error(error);
+            throw new Error('Failed validate config.');
         }
-
-        console.log(config)
-        this.validateGlobalConfig(config.global);
-
-        if (!config.services || typeof config.services !== 'object') {
-            throw new Error('Services configuration is missing or invalid.');
-        }
-
-        Object.keys(config.services).forEach((serviceName) => {
-            const serviceConfig = config.services[serviceName];
-            this.validateServiceConfig(serviceConfig);
-        });
-
-        return true; // Конфигурация прошла валидацию
     }
-
-    // Метод для загрузки конфигурации из JSON файла
-    //   static loadConfig(filePath) {
-    //     try {
-    //       const configFile = fs.readFileSync(filePath, 'utf-8');
-    //       const config = JSON.parse(configFile);
-    //       // Валидируем конфигурацию перед возвращением
-    //       this.validateConfig(config);
-    //       return config;
-    //     } catch (error) {
-    //       throw new Error(`Error loading configuration file: ${error.message}`);
-    //     }
-    //   }
 }
-

@@ -11,24 +11,28 @@ export default class ConfigRepository extends EventEmitter {
         this.initConfig(configPath);
     }
 
-      loadConfig(filePath) {
+    loadConfig(filePath) {
         try {
-          const configFile = fs.readFileSync(filePath, 'utf-8');
-          const config = JSON.parse(configFile);
-          return config;
+            const configFile = fs.readFileSync(filePath, 'utf-8');
+            const config = JSON.parse(configFile);
+            return config;
         } catch (error) {
-          throw new Error(`Error loading configuration file: ${error.message}`);
+            throw new Error(`Error loading configuration file: ${error.message}`);
         }
-      }
+    }
 
     initConfig(configPath) {
-        const config= this.loadConfig(configPath);
-        if(!ConfigValidator.validateConfig(config)){
-           console.error(123) 
+        const config = this.loadConfig(configPath);
+        if (!ConfigValidator.validateConfig(config)) {
+            console.error('Error validation')
         };
+        
         this.config = config;
     }
 
+    getConfig(){
+        return this.config;
+    }
     // Возвращаем глобальную конфигурацию
     getGlobalConfig() {
         return this.config ? this.config.global : null;

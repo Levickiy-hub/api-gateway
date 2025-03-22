@@ -1,26 +1,35 @@
-import routes from "../../interfaces/routes/routes.js";
-
-class RouteRepository {
-    constructor() {
-        this.routes = {...routes}
+export default class RouteRepository {
+    constructor(config) {
+        this.config = config;
+        this.routes = new Map();
+        this.initializeRoutes();
     }
 
-    getTarget(url) {
-        const route = this.routes[url] || null;
-        if (!route) {
-            console.error(`Target not found for URL: ${url}`)
-            throw new Error(`Target not found`);
+    initializeRoutes() {
+        if (!this.config?.services || !Array.isArray(this.config.services)) {
+            throw new Error("Invalid services configuration.");
         }
-        return route;
+
+        this.config.services.forEach(service => {
+            service.endpoints.forEach(endpoint => {
+                const path = endpoint.path;
+
+                if (this.routes.has(path)) {
+                    console.warn(`Duplicate path detected: ${path}. Overwriting existing route.`);
+                }
+
+                this.routes.set(path, {
+                    targets: endpoint.targets,
+                    loadBalancingStrategy: endpoint.loadBalancingStrategy || "round-robin",
+                    rateLimit: endpoint.rateLimit || this.config.global.rateLimit,
+                    cors: endpoint.cors || this.config.global.cors,
+                    security: endpoint.security || { secured: false, requireJwt: false, public: true },
+                });
+            });
+        });
     }
 
-    addRoute(path, targetUrl) {
-        this.routes[path] = targetUrl;
-    }
-
-    removeRoute(path) {
-        delete this.routes[path];
+    getRoutes() {
+        return this.routes;
     }
 }
-
-export default new RouteRepository();
