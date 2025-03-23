@@ -37,8 +37,10 @@ api-gateway/
 │── src/
 │   │── application/                  # (Application Layer - сервисы и бизнес-логика)
 │   │   │── services/                  # Бизнес-логика прокси-сервиса
+|   |   |   │── CorsService.js          # обработка cors запросов
 │   │   │   │── ProxyService.js         # Основной сервис проксирования (Фасад)
-│   │   │   │── LoadBalancerService.js  # Балансировка нагрузки (Стратегия)
+|   |   |   │── LoadBalancerServerService.js # Балансировка между конечными серверами (Стратегия)
+│   │   │   │── LoadBalancerService.js  # Балансировка нагрузки между потоками (Стратегия)
 │   │   │   │── AuthService.js          # Аутентификация (Фабричный метод)
 │   │   │   │── SecurityService.js      # Защита API (CORS, Rate Limit, Chain of Responsibility)
 │   │   │   │── MonitoringService.js    # Мониторинг и логирование (Наблюдатель)

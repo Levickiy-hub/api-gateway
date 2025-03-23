@@ -26,8 +26,8 @@
         {
           "path": "/service1",
           "targets": [
-            { "url": "http://localhost:3001/users", "protocol": "http" },
-            { "url": "http://localhost:3002/users", "protocol": "http" }
+            { "url": "http://localhost:5001/", "protocol": "http" },
+            { "url": "http://localhost:5002/", "protocol": "http" }
           ],
           "loadBalancingStrategy": "round-robin",
           "rateLimit": {
@@ -43,7 +43,8 @@
           "security": {
             "secured": true,
             "requireJwt": true,
-            "public": true
+            "public": true,
+            "secretKey":"123ABcD4"
           }
         },
         {
@@ -64,7 +65,8 @@
           "security": {
             "secured": true,
             "requireJwt": false,
-            "public": false
+            "public": false,
+            "secretKey":"123ABcD4"
           }
         }
       ]
