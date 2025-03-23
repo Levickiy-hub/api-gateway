@@ -59,6 +59,7 @@ api-gateway/
 │   │   │   │── TLSService.js             # Настройка и обновление сертификатов
 |   |   |   │── LoggerService.js          #Логика логирования
 │   │   │   │── UUIDService.js            # Логика генерации UUID
+│   │   │   │── ConfigService.js            # Логика получени конфига (singleton)
 │   │   │── workers/                     # Потоки (Worker Threads)
 │   │   │   │── WorkerManager.js          # Менеджер потоков (для распределения работы по воркерам)
 |   |   |   |── Worker.js                   # Логика обработки запроса в потоке (Команда)

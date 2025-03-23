@@ -1,3 +1,5 @@
+import { URL } from 'url';
+
 export default class RouteRepository {
     constructor(config) {
         this.config = config;
@@ -31,5 +33,20 @@ export default class RouteRepository {
 
     getRoutes() {
         return this.routes;
+    }
+
+    getTarget(url) {
+        try {
+            const pathname = new URL(url, 'http://localhost').pathname;
+
+            if (this.routes.has(pathname)) {
+                return this.routes.get(pathname);
+            }
+
+            return null;
+        } catch (error) {
+            console.error("❌ Error processing URL:", error.message);
+            return null;
+        }
     }
 }

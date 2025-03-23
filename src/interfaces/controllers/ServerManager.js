@@ -5,18 +5,18 @@ import WebSocketController from './WebSocketController.js'
 import SlowlorisService from '../../infrastructure/services/SlowlorisService.js'; // Импорт вашего сервиса
 
 export default class ServerManager {
-    constructor(config, routes) {
-        this.port = config.getGlobalConfig().port;
-        this.workerManager = new WorkerManager(config.getGlobalConfig().numCPUs);
+    constructor(port, numCPUs, configService, routeRepository) {
+        this.port = port;
+        this.workerManager = new WorkerManager(numCPUs);
         this.webSocketController = new WebSocketController();
+        this.ConfigService = configService;
+        this.routeRepository = routeRepository;
         this.server = this.createHttpServer();
-        this.config = config;
-        this.routes = routes;
     }
 
     createHttpServer() {
         return createServer((req, res) => {
-            loggerMiddleware(req, res);
+            // loggerMiddleware(req, res);
             this.workerManager.sendRequestToWorker(req)
                 .then(workerResponse => {
                     res.statusCode = workerResponse.statusCode;
@@ -40,7 +40,7 @@ export default class ServerManager {
 
     setupSlowlorisProtection() {
         this.server.on('connection', (socket) => {
-            const slowlorisService = new SlowlorisService(socket, this.config);
+            const slowlorisService = new SlowlorisService(socket, this.ConfigService.getTimeoutsConfig());
             slowlorisService.start();
         });
     }

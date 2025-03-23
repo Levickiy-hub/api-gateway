@@ -6,9 +6,9 @@ export default class SlowlorisService {
     constructor(socket, config) {
         this.socket = socket;
         this.config = config;
-        this.timeoutManager = new TimeoutManager(config.TIMEOUT_MS, socket);
-        this.idleChecker = new IdleChecker(config.MAX_IDLE_TIME_MS, socket);
-        this.connectionDurationChecker = new ConnectionDurationChecker(config.MAX_CONNECTION_DURATION_MS, socket);
+        this.timeoutManager = new TimeoutManager(config.initial, socket);
+        this.idleChecker = new IdleChecker(config.idle, socket);
+        this.connectionDurationChecker = new ConnectionDurationChecker(config.maxDuration, socket);
     }
 
     start() {
