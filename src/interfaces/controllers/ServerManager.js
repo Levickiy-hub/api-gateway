@@ -7,7 +7,7 @@ import SlowlorisService from '../../infrastructure/services/SlowlorisService.js'
 export default class ServerManager {
     constructor(port, numCPUs, configService, routeRepository) {
         this.port = port;
-        this.workerManager = new WorkerManager(numCPUs);
+        this.workerManager = new WorkerManager(numCPUs, configService);
         this.webSocketController = new WebSocketController();
         this.ConfigService = configService;
         this.routeRepository = routeRepository;
@@ -16,7 +16,7 @@ export default class ServerManager {
 
     createHttpServer() {
         return createServer((req, res) => {
-            // loggerMiddleware(req, res);
+            loggerMiddleware(req, res);
             this.workerManager.sendRequestToWorker(req)
                 .then(workerResponse => {
                     res.statusCode = workerResponse.statusCode;

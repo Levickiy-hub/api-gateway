@@ -1,10 +1,17 @@
-import { Worker } from 'worker_threads';
+import { Worker, } from 'worker_threads';
 import LoadBalancer from '../../application/services/LoadBalancerService.js';
 
 export default class WorkerManager {
-    constructor(numWorkers) {
+    constructor(numWorkers, configService) {
+        this.configService = configService;
         this.workers = [];
-        this.initWorkers(numWorkers)
+
+        // 🛠️ Создаем общую память для баланса нагрузки
+        const bufferSize = 1024; // Можно увеличить при необходимости
+        this.sharedBuffer = new SharedArrayBuffer(bufferSize);
+        this.sharedArray = new Int32Array(this.sharedBuffer); // Используем Int32Array для совместимости с Atomics
+
+        this.initWorkers(numWorkers);
     }
 
     initWorkers(numWorkers) {
@@ -14,28 +21,55 @@ export default class WorkerManager {
     }
 
     createWorker() {
-        const worker = new Worker(new URL('./Worker.js', import.meta.url));
+        const worker = new Worker(new URL('./Worker.js', import.meta.url), {
+            workerData: {
+                 config: this.configService.getConfig(),
+                 sharedBuffer: this.sharedBuffer
+                }
+        });
+
         worker.on('exit', (code) => {
             console.error(`⚠️ Worker exited with code ${code}`);
             this.workers = this.workers.filter(w => w !== worker);
-            if (code !== 0) this.createWorker(); // Перезапускаем
+            if (code !== 0) this.createWorker(); // Перезапускаем воркер
         });
+
+        worker.on('error', (err) => {
+            console.error(`❌ Worker error: ${err.message}`);
+            this.workers = this.workers.filter(w => w !== worker);
+            this.createWorker();
+        });
+
+        worker.pendingTasks = 0; // Добавляем счетчик запросов
         this.workers.push(worker);
     }
 
-    sendRequestToWorker(req) {
-        const requestData = {
-            url: req.url,
-            methods: req.methods,
-            headers: req.headers,
-            body: req.body || null
+    async sendRequestToWorker(req) {
+        if (this.workers.length === 0) {
+            return Promise.reject(new Error('⚠️ No available workers!'));
         }
 
         return new Promise((resolve, reject) => {
             const worker = LoadBalancer.selectWorker(this.workers);
+            if (!worker) return reject(new Error('⚠️ No available worker found!'));
+
+            const requestData = {
+                url: req.url,
+                method: req.method,
+                headers: req.headers,
+                body: req.body || null
+            };
+
             worker.postMessage(requestData);
-            worker.once('message', resolve);
-            worker.on('error', reject);
+            worker.once('message', (response) => {
+                LoadBalancer.workerFinished(worker);
+                resolve(response);
+            });
+
+            worker.on('error', (err) => {
+                LoadBalancer.workerFinished(worker);
+                reject(err);
+            });
         });
     }
 }

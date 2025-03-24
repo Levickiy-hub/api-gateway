@@ -99,7 +99,7 @@ export class ConfigValidator {
                     }
                 });
 
-                if (endpoint.loadBalancingStrategy && !['round-robin', 'random', 'least-connections'].includes(endpoint.loadBalancingStrategy)) {
+                if (endpoint.loadBalancingStrategy && !['round-robin', 'random', 'least-connections', 'ip-hash'].includes(endpoint.loadBalancingStrategy)) {
                     throw new Error(`Service "${service.name}" endpoint "${endpoint.path}" has an invalid loadBalancingStrategy.`);
                 }
 

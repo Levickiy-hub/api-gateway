@@ -31,7 +31,6 @@ export default class CorsService {
     }
 
     static handlePreflight(req) {
-        console.log(1)
         return req.method === 'OPTIONS';
     }
 }
