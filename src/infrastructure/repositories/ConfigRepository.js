@@ -1,7 +1,7 @@
 import fs from "fs";
 import { ConfigValidator } from "../config/ConfigValidator.js";
 import { EventEmitter } from 'events';
-
+import { logger } from "../services/LoggerService.js";
 
 export default class ConfigRepository extends EventEmitter {
     constructor(configPath) {
@@ -24,7 +24,7 @@ export default class ConfigRepository extends EventEmitter {
     initConfig(configPath) {
         const config = this.loadConfig(configPath);
         if (!ConfigValidator.validateConfig(config)) {
-            console.error('Error validation')
+            logger.error('Error validation')
         };
         
         this.config = config;

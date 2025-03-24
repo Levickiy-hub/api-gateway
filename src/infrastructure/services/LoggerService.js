@@ -4,39 +4,40 @@ import { promisify } from 'util';
 
 const writeFileAsync = promisify(fs.appendFile);
 
-//Уровни логов
-const levels = {
-    info: { color: '\x1b[32m', label: 'INFO' },   // Зеленый
-    warn: { color: '\x1b[33m', label: 'WARN' },   // Желтый
-    error: { color: '\x1b[31m', label: 'ERROR' }  // Красный
+const logDir = path.join(process.cwd(), 'logs');
+if (!fs.existsSync(logDir)) fs.mkdirSync(logDir);
+
+const logFiles = {
+    access: path.join(logDir, 'access.log'), // HTTP-запросы и ответы
+    error: path.join(logDir, 'errors.log'),  // Ошибки
+    info: path.join(logDir, 'app.log'),      // Остальная информация
+    warn: path.join(logDir, 'app.log'),     // Остальная информация
 };
 
-const logFilePath = path.join(process.cwd(), 'logs', 'app.log');
-
-// Убедимся, что папка logs существует
-if (!fs.existsSync('logs')) {
-    fs.mkdirSync('logs');
-}
-
 class LoggerService {
-    async log(level, message) {
-        const { color, label } = levels[level] || levels.info;
+    async log(type, message, meta = {}) {
         const timestamp = new Date().toISOString();
-        const logMessage = `[${timestamp}] ${label}: ${message}\n`;
+        const logEntry = JSON.stringify({ timestamp, type, message, ...(Object.keys(meta).length ? { meta } : {}) }) + '\n';
 
-        console.log(color, logMessage, '\x1b[0m');
+        // Вывод в консоль
+        if (Object.keys(meta).length) {
+            console.log(`[${type.toUpperCase()}]`, message, meta);
+        } else {
+            console.log(`[${type.toUpperCase()}]`, message);
+        }
 
+        // Запись в файл
         try {
-            await writeFileAsync(logFilePath, logMessage);
+            await writeFileAsync(logFiles[type] || logFiles.info, logEntry);
         } catch (err) {
             console.error('Ошибка записи в лог-файл:', err);
         }
     }
 
-    info(msg) { return this.log('info', msg); }
-    warn(msg) { return this.log('warn', msg); }
-    error(msg) { return this.log('error', msg); }
+    access(msg, meta = {}) { return this.log('access', msg, meta); }
+    info(msg, meta = {}) { return this.log('info', msg, meta); }
+    warn(msg, meta = {}) { return this.log('warn', msg, meta); }
+    error(msg, meta = {}) { return this.log('error', msg, meta); }
 }
 
-// Используем Одиночку (Singleton)
 export const logger = new LoggerService();

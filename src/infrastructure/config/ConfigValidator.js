@@ -1,3 +1,4 @@
+import { logger } from "../services/LoggerService.js";
 export class ConfigValidator {
     static validateGlobalConfig(globalConfig) {
         if (!globalConfig) throw new Error('Global configuration is missing.');
@@ -62,7 +63,7 @@ export class ConfigValidator {
             throw new Error('Invalid cors.maxAge: must be a non-negative number.');
         }
 
-        console.log('Global configuration is valid.');
+        logger.info('Global configuration is valid.');
         return true;
     }
 
@@ -105,7 +106,7 @@ export class ConfigValidator {
 
                 // Проверка rateLimit
                 if (!endpoint.rateLimit) {
-                    console.warn(`Service "${service.name}" endpoint "${endpoint.path}" is missing rateLimit. Using global rateLimit:`, globalConfig.rateLimit);
+                    logger.warn(`Service "${service.name}" endpoint "${endpoint.path}" is missing rateLimit. Using global rateLimit:`, globalConfig.rateLimit);
                     endpoint.rateLimit = globalConfig.rateLimit;
                 }
 
@@ -119,7 +120,7 @@ export class ConfigValidator {
 
                 // Проверка CORS
                 if (!endpoint.cors) {
-                    console.warn(`Service "${service.name}" endpoint "${endpoint.path}" is missing CORS configuration. Using global CORS:`, globalConfig.cors);
+                    logger.warn(`Service "${service.name}" endpoint "${endpoint.path}" is missing CORS configuration. Using global CORS:`, globalConfig.cors);
                     endpoint.cors = globalConfig.cors;
                 }
 
@@ -143,7 +144,7 @@ export class ConfigValidator {
 
                 // Проверка security
                 if (!endpoint.security) {
-                    console.warn(`Service "${service.name}" endpoint "${endpoint.path}" is missing security configuration. Using default values.`);
+                    logger.warn(`Service "${service.name}" endpoint "${endpoint.path}" is missing security configuration. Using default values.`);
                     endpoint.security = { secured: false, requireJwt: false, public: true };
                 }
 
@@ -155,7 +156,7 @@ export class ConfigValidator {
             });
         });
 
-        console.log('Services configuration is valid.');
+        logger.info('Services configuration is valid.');
         return true;
     }
 
@@ -165,7 +166,7 @@ export class ConfigValidator {
             this.validateServices(config.services, config.global);
             return true; // Конфигурация прошла валидацию
         } catch (error) {
-            console.error(error);
+            logger.error(error);
             throw new Error('Failed validate config.');
         }
     }

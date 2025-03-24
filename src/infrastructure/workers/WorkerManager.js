@@ -1,5 +1,6 @@
 import { Worker, } from 'worker_threads';
 import LoadBalancer from '../../application/services/LoadBalancerService.js';
+import { logger } from '../services/LoggerService.js';
 
 export default class WorkerManager {
     constructor(numWorkers, configService) {
@@ -29,13 +30,13 @@ export default class WorkerManager {
         });
 
         worker.on('exit', (code) => {
-            console.error(`⚠️ Worker exited with code ${code}`);
+            logger.error(`⚠️ Worker exited with code ${code}`);
             this.workers = this.workers.filter(w => w !== worker);
             if (code !== 0) this.createWorker(); // Перезапускаем воркер
         });
 
         worker.on('error', (err) => {
-            console.error(`❌ Worker error: ${err.message}`);
+            logger.error(`❌ Worker error: ${err.message}`);
             this.workers = this.workers.filter(w => w !== worker);
             this.createWorker();
         });

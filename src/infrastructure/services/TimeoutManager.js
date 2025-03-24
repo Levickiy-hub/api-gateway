@@ -1,3 +1,5 @@
+import { logger } from "./LoggerService.js";
+
 export default class TimeoutManager {
     constructor(timeoutMs, socket) {
         this.timeoutMs = timeoutMs;
@@ -7,7 +9,7 @@ export default class TimeoutManager {
 
     start() {
         this.timer = setTimeout(() => {
-            console.warn(`🚨 Possible Slowloris attack from ${this.socket.remoteAddress}`);
+            logger.warn(`🚨 Possible Slowloris attack from ${this.socket.remoteAddress}`);
             this.socket.destroy();
         }, this.timeoutMs);
     }

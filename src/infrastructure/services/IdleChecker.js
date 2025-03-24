@@ -1,3 +1,5 @@
+import { logger } from "./LoggerService.js";
+
 export default class IdleChecker {
     constructor(maxIdleTimeMs, socket) {
         this.maxIdleTimeMs = maxIdleTimeMs;
@@ -9,7 +11,7 @@ export default class IdleChecker {
     start() {
         this.interval = setInterval(() => {
             if (Date.now() - this.lastActivityTime > this.maxIdleTimeMs) {
-                console.warn(`🚨 Possible Slowloris attack due to slow data from ${this.socket.remoteAddress}`);
+                logger.warn(`🚨 Possible Slowloris attack due to slow data from ${this.socket.remoteAddress}`);
                 this.socket.destroy();
             }
         }, 1000);

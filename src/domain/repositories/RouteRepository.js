@@ -1,4 +1,5 @@
 import { URL } from 'url';
+import { logger } from '../../infrastructure/services/LoggerService.js';
 
 export default class RouteRepository {
     constructor(config) {
@@ -17,7 +18,7 @@ export default class RouteRepository {
                 const path = endpoint.path;
 
                 if (this.routes.has(path)) {
-                    console.warn(`Duplicate path detected: ${path}. Overwriting existing route.`);
+                    logger.warn(`Duplicate path detected: ${path}. Overwriting existing route.`);
                 }
 
                 this.routes.set(path, {
@@ -45,7 +46,7 @@ export default class RouteRepository {
 
             return null;
         } catch (error) {
-            console.error("❌ Error processing URL:", error.message);
+            logger.error("❌ Error processing URL:", error.message);
             return null;
         }
     }

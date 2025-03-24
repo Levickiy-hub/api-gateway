@@ -2,7 +2,8 @@ import { createServer } from 'http';
 import WorkerManager from '../../infrastructure/workers/WorkerManager.js';
 import { loggerMiddleware } from '../../infrastructure/middleware/LoggerMiddleware.js'
 import WebSocketController from './WebSocketController.js'
-import SlowlorisService from '../../infrastructure/services/SlowlorisService.js'; // Импорт вашего сервиса
+import SlowlorisService from '../../infrastructure/services/SlowlorisService.js';
+import { logger } from '../../infrastructure/services/LoggerService.js';
 
 export default class ServerManager {
     constructor(port, numCPUs, configService, routeRepository) {
@@ -26,14 +27,14 @@ export default class ServerManager {
                 .catch(err => {
                     res.statusCode = 500;
                     res.end('Internal Server Error');
-                    console.error(err);
+                    logger.error(err);
                 });
         });
     }
 
     setupWebSocket() {
         this.server.on('upgrade', (req, socket, head) => {
-            console.log(`🔗 WebSocket upgrade request: ${req.url}`);
+            logger.info(`🔗 WebSocket upgrade request: ${req.url}`);
             this.webSocketController.handleUpgrade(req, socket, head);
         });
     }
@@ -49,7 +50,7 @@ export default class ServerManager {
         this.setupWebSocket();
         this.setupSlowlorisProtection();
         this.server.listen(this.port, () => {
-            console.log(`🌍 API Gateway listening on port ${this.port}`);
+            logger.info(`🌍 API Gateway listening on port ${this.port}`);
         });
     }
 }

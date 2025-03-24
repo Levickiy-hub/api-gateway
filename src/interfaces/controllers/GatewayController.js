@@ -1,4 +1,5 @@
 import rateLimiter from '../../infrastructure/middleware/RateLimiterMiddleware.js';
+import { logger } from '../../infrastructure/services/LoggerService.js';
 
 export default class GatewayController {
     static async handleRequest(req, res, workerManager) {
@@ -12,7 +13,7 @@ export default class GatewayController {
         try {
             const isAllowed = await rateLimiter(requestData);
             if (!isAllowed) {
-                console.warn(`⛔ Rate limit exceeded for ${requestData.headers['x-forwarded-for'] || requestData.remoteAddress || 'unknown IP'}`);
+                logger.warn(`⛔ Rate limit exceeded for ${requestData.headers['x-forwarded-for'] || requestData.remoteAddress || 'unknown IP'}`);
                 res.writeHead(429, { 'Content-Type': 'application/json' });
                 return res.end(JSON.stringify({ error: 'Too Many Requests' }));
             }
@@ -21,7 +22,7 @@ export default class GatewayController {
             res.writeHead(responseData.statusCode, responseData.headers);
             return res.end(responseData.body);
         } catch (err) {
-            console.error(`❌ Error handling request: ${err.message}`);
+            logger.error(`❌ Error handling request: ${err.message}`);
             res.writeHead(500, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: 'Internal Server Error' }));
         }
