@@ -4,31 +4,33 @@ import { loggerMiddleware } from '../../infrastructure/middleware/LoggerMiddlewa
 import WebSocketController from './WebSocketController.js'
 import SlowlorisService from '../../infrastructure/services/SlowlorisService.js';
 import { logger } from '../../infrastructure/services/LoggerService.js';
+import  tlsService  from '../../infrastructure/services/TLSService.js';
 
 export default class ServerManager {
     constructor(port, numCPUs, configService, routeRepository) {
         this.port = port;
         this.workerManager = new WorkerManager(numCPUs, configService);
-        this.webSocketController = new WebSocketController();
+        this.webSocketController = new WebSocketController(routeRepository);
         this.ConfigService = configService;
         this.routeRepository = routeRepository;
         this.server = this.createHttpServer();
+        this.cert = tlsService.getConfig();
     }
 
     createHttpServer() {
-        return createServer((req, res) => {
-            loggerMiddleware(req, res);
-            this.workerManager.sendRequestToWorker(req)
-                .then(workerResponse => {
-                    res.statusCode = workerResponse.statusCode;
-                    res.headers = workerResponse.headers;
-                    res.end(workerResponse.body);
-                })
-                .catch(err => {
-                    res.statusCode = 500;
-                    res.end('Internal Server Error');
-                    logger.error(err);
-                });
+        return createServer(async (req, res) => {
+            try {
+                loggerMiddleware(req, res);
+                const workerResponse = await this.workerManager.sendRequestToWorker(req);
+                res.statusCode = workerResponse.statusCode;
+                res.headers = workerResponse.headers;
+                res.end(workerResponse.body);
+            }
+            catch (error) {
+                res.statusCode = 500;
+                res.end('Internal Server Error');
+                logger.error(error);
+            }
         });
     }
 

@@ -1,8 +1,8 @@
 import  WebSocketProxyService from '../../application/services/WebSocketProxyService.js';
 
 class WebSocketController {
-    constructor() {
-        this.wsProxy = new WebSocketProxyService();
+    constructor(routesRepository) {
+        this.wsProxy = new WebSocketProxyService(routesRepository);
     }
     
     handleUpgrade(req, socket, head) {

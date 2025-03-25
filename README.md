@@ -61,7 +61,7 @@ api-gateway/
 │   │   │   │── TLSService.js             # Настройка и обновление сертификатов
 |   |   |   │── LoggerService.js          #Логика логирования
 │   │   │   │── UUIDService.js            # Логика генерации UUID
-│   │   │   │── ConfigService.js            # Логика получени конфига (singleton)
+│   │   │   │── ConfigService.js          # Логика получени конфига (singleton)
 │   │   │── workers/                     # Потоки (Worker Threads)
 │   │   │   │── WorkerManager.js          # Менеджер потоков (для распределения работы по воркерам)
 |   |   |   |── Worker.js                   # Логика обработки запроса в потоке (Команда)
@@ -70,8 +70,12 @@ api-gateway/
 │   │   │   │── RateLimiterMiddleware.js  # Ограничение запросов (Token Bucket)
 │   │   │   │── ErrorHandlerMiddleware.js # Глобальная обработка ошибок
 │   │   │── config/                       # Конфигурация проекта (Конфигуратор)
+|   |   |   │── cert/                      # Сертификаты tls
+|   |   |   |   │── 
+|   |   |   |   │──  
+|   |   |   |   │──  
 │   │   │   │── ConfigValidator.js         # Валидатор конфигурации (внутри инфраструктуры)
-│   │   │   │── Config.js                 # Загрузка конфигурации (env, json)
+│   │   │   │── services.json                 # Загрузка конфигурации (env, json)
 │   │   │── repositories/                # Репозитории (паттерн Repository)
 │   │   │   │── ConfigRepository.js      # Репозиторий конфигурации (работа с файлами конфигурации)
 |   |   |   │── RateLimiterRepository.js   # Репозиторий для хранения и работы с количеством запросов
@@ -81,8 +85,6 @@ api-gateway/
 │   │   │   │── AuthController.js          # Контроллер аутентификации
 |   |   |   │── WebSocketController.js     # WebSocket-контроллер
 |   |   |   │── ServerManager.js           # Логика запуска сервера и воркеров (Фасад)
-│   │   │── routes/                        # Настройки маршрутизации (Шаблонный метод)
-│   │   │   │── routes.js                  # Основные маршруты API Gateway
 │   │── server.js                           # Точка входа в приложение (Entry Point)
 │── tests/                                  # Тесты (юнит и интеграционные)
 │   │── integration/                        # Интеграционные тесты

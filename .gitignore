@@ -2,3 +2,9 @@
 *.log
 src/logs/app.log
 /node_modules
+
+src/infrastructure/config/cert/*.pem
+src/infrastructure/config/cert/*.key
+src/infrastructure/config/cert/*.crt
+src/infrastructure/config/cert/*.pfx
+src/infrastructure/config/cert/*.cer

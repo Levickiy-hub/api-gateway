@@ -1,16 +1,16 @@
-import routes from "../../interfaces/routes/routes.js";
 import net from "net";
 import crypto from "crypto";
 import { logger } from "../../infrastructure/services/LoggerService.js";
 
 class WebSocketProxyService {
-    constructor() {
+    constructor(routesRepository) {
         this.wsConnections = new Map();
+        this.routes = routesRepository
     }
 
     handleUpgrade(req, clientSocket, head) {
         const url = req.url;
-        const targetUrl = routes[url];
+        const targetUrl = routes.getTarget(url);
         if (!targetUrl) {
             logger.info(`❌ No backend service found for ${url}`);
             clientSocket.destroy();
