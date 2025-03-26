@@ -45,6 +45,7 @@ api-gateway/
 │   │   │   │── SecurityService.js      # Защита API (CORS, Rate Limit, Chain of Responsibility)
 │   │   │   │── MonitoringService.js    # Мониторинг и логирование (Наблюдатель)
 |   |   |   │── WebSocketProxyService.js # Будет перенаправлять WebSocket-соединения
+|   |   |   |── HttpServerFactory .js    # Фабрика отвечаеющая за создание сервера для обработки запросов.
 │   │   │── dtos/                       # Data Transfer Objects (DTO)
 │   │   │   │── RequestDto.js           # DTO для запросов
 │   │   │   │── ResponseDto.js          # DTO для ответов

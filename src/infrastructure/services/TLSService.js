@@ -24,10 +24,15 @@ class TLSService {
         try {
             logger.info('🔐 Ищем актуальные TLS-сертификаты...');
 
-            // 🔍 Находим самые свежие файлы сертификатов
             const certFiles = await this.classifyCertificates();
-              // Читаем файлы
-              const [key, certContent, ca, dhparam] = await Promise.all([
+
+            if (!certFiles.cert || !certFiles.privkey) {
+                logger.warn(' TLS-сертификаты не найдены');
+                this.tlsConfig = null;
+                return ;
+            }
+
+            const [key, certContent, ca, dhparam] = await Promise.all([
                 fs.readFile(certFiles.privkey),
                 fs.readFile(certFiles.cert),
                 certFiles.ca ? fs.readFile(certFiles.ca) : null,
@@ -36,7 +41,6 @@ class TLSService {
 
             this.tlsConfig = { key, cert: certContent, ca, dhparam };
 
-            // 🔍 Проверяем сертификат
             this.validateCertificate(certContent.toString());
 
             logger.info('✅ TLS-сертификаты загружены и проверены.');
@@ -52,7 +56,6 @@ class TLSService {
     async classifyCertificates() {
         const files = await fs.readdir(CERT_DIR);
         const certFiles = { privkey: null, cert: null, ca: null, dhparam: null };
-
         for (const file of files) {
             if (!file.endsWith('.pem')) continue;
 
@@ -61,10 +64,23 @@ class TLSService {
 
             if (content.includes('PRIVATE KEY')) {
                 certFiles.privkey = filePath;
-            } else if (content.includes('CERTIFICATE') && !certFiles.cert) {
+            } else if (content.includes('CERTIFICATE')) {
+                try {
+                    const cert = new crypto.X509Certificate(content);
+                    if (cert.issuer === cert.subject) {
+                        certFiles.ca = filePath;
+                    }
+                    else if (!certFiles.cert) {
+                        certFiles.cert = filePath;
+                    }
+                    else {
+                        certFiles.ca = filePath;
+                    }
+                }
+                catch (error) {
+                    logger.error(`⚠️ Не удалось разобрать сертификат: ${filePath}`);
+                }
                 certFiles.cert = filePath; // Основной сертификат
-            } else if (content.includes('CERTIFICATE') && certFiles.cert) {
-                certFiles.ca = filePath; // CA-chain (если есть)
             } else if (content.includes('DH PARAMETERS')) {
                 certFiles.dhparam = filePath; // Diffie-Hellman параметры
             }
@@ -74,22 +90,21 @@ class TLSService {
     }
 
     validateCertificate(certContent) {
-        try {    
+        try {
             const cert = new crypto.X509Certificate(certContent);
-    
+
             const validFrom = new Date(cert.validFrom);
             const validTo = new Date(cert.validTo);
             const now = new Date();
-    
+
             if (now > validTo) {
                 throw new Error(`Сертификат просрочен! Истёк: ${validTo}`);
             }
             logger.info(`✅ Сертификат действителен до ${validTo}`);
-    
-            // 📌 Получаем домен динамически
+
             const expectedDomain = process.env.DOMAIN_NAME || os.hostname();
             const expectedDomains = cert.subjectAltName.split(', ').map(d => d.replace(/^DNS:/, ''));
-    
+
             logger.info(`🔍 Доступные домены в сертификате: ${expectedDomains}`);
 
             if (!expectedDomains.includes(expectedDomain)) {

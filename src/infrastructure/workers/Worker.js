@@ -14,26 +14,23 @@ const loadBalancing = new LoadBalancerServers(sharedArray);
 
 parentPort.on('message', async (req) => {
     try {
-        // 1. Найти целевой бэкенд
         const targetServers = routeRepository.getTarget(req.url);
         if (!targetServers) {
             return parentPort.postMessage({ statusCode: 404, body: 'Not Found' });
         }
 
         const targetUrl = loadBalancing.selectTargetServer(targetServers.targets, targetServers.loadBalancingStrategy,req).url;
-        // 2. Проверить лимиты частоты запросов
+
         const rateLimited = await rateLimiter(req, targetServers.rateLimit);
         if (rateLimited) {
             return parentPort.postMessage({ statusCode: 429, body: 'Too Many Requests' });
         }
 
-        // 3. Проверить CORS
         if (CorsService.handlePreflight(req)) {
             const corsHeaders = CorsService.getCorsHeaders(req, targetServers);
             return parentPort.postMessage({ statusCode: 204, body: 'No Content', headers: corsHeaders })
         }
 
-        // 4. Проверить права доступа
         const authService = new AuthService(targetServers.security.secretKey);
         if (!authService.isRoutePublic(targetServers)) {  // Проверяем, публичный ли маршрут
             const authResult = authService.validateToken(req.headers['authorization']);
@@ -42,11 +39,7 @@ parentPort.on('message', async (req) => {
             }
         }
 
-
-        // 5. Проксировать запрос
         const response = await ProxyService.proxyRequest({ ...req }, targetUrl);
-
-        // 6. Вернуть результат
         parentPort.postMessage(response);
 
     } catch (error) {

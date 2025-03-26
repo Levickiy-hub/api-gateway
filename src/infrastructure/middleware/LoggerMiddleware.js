@@ -6,7 +6,6 @@ export function loggerMiddleware(req, res) {
     const requestId = req.headers['x-request-id'] || UUIDService.generateUUID();
     const clientIp = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress;
 
-    // Логируем входящий запрос
     const { method, url, headers } = req;
     const requestBody = [];
     const responseBody = [];
@@ -28,7 +27,6 @@ export function loggerMiddleware(req, res) {
         });
     });
 
-    // Перехватываем тело ответа
     const originalWrite = res.write;
     const originalEnd = res.end;
 
@@ -44,7 +42,6 @@ export function loggerMiddleware(req, res) {
         originalEnd.apply(res, arguments);
     };
 
-    // Логируем исходящий ответ
     res.on('finish', async () => {
         const duration = process.hrtime(startTime);
         const latency = (duration[0] * 1000 + duration[1] / 1e6).toFixed(2);

@@ -1,37 +1,35 @@
-import { createServer } from 'http';
-import WorkerManager from '../../infrastructure/workers/WorkerManager.js';
 import { loggerMiddleware } from '../../infrastructure/middleware/LoggerMiddleware.js'
 import WebSocketController from './WebSocketController.js'
 import SlowlorisService from '../../infrastructure/services/SlowlorisService.js';
 import { logger } from '../../infrastructure/services/LoggerService.js';
-import  tlsService  from '../../infrastructure/services/TLSService.js';
+import HttpServerFactory from '../../application/services/HttpServerFactory.js'
 
 export default class ServerManager {
-    constructor(port, numCPUs, configService, routeRepository) {
+    constructor(port, workerManager, configService, routeRepository) {
         this.port = port;
-        this.workerManager = new WorkerManager(numCPUs, configService);
+        this.workerManager = workerManager;
         this.webSocketController = new WebSocketController(routeRepository);
         this.ConfigService = configService;
         this.routeRepository = routeRepository;
-        this.server = this.createHttpServer();
-        this.cert = tlsService.getConfig();
+        this.server = null;
     }
 
-    createHttpServer() {
-        return createServer(async (req, res) => {
+    async createHttpServer() {
+        const requestHandler = async (req, res) => {
             try {
                 loggerMiddleware(req, res);
                 const workerResponse = await this.workerManager.sendRequestToWorker(req);
                 res.statusCode = workerResponse.statusCode;
                 res.headers = workerResponse.headers;
                 res.end(workerResponse.body);
-            }
-            catch (error) {
+            } catch (error) {
                 res.statusCode = 500;
                 res.end('Internal Server Error');
                 logger.error(error);
             }
-        });
+        };
+
+        this.server = await HttpServerFactory.createServer(requestHandler);
     }
 
     setupWebSocket() {
@@ -48,7 +46,8 @@ export default class ServerManager {
         });
     }
 
-    start() {
+    async start() {
+        await this.createHttpServer();
         this.setupWebSocket();
         this.setupSlowlorisProtection();
         this.server.listen(this.port, () => {
