@@ -26,8 +26,8 @@
         {
           "path": "/service1",
           "targets": [
-            { "url": "http://localhost:5001/", "protocol": "http" },
-            { "url": "http://localhost:5002/", "protocol": "http" }
+            { "url": "http://localhost:5001/", "protocol": "http", "location":"ru" },
+            { "url": "http://localhost:5002/", "protocol": "http", "location":"by" }
           ],
           "loadBalancingStrategy": "round-robin",
           "rateLimit": {

@@ -53,7 +53,8 @@ export default class WorkerManager {
         return new Promise((resolve, reject) => {
             const worker = LoadBalancer.selectWorker(this.workers);
             if (!worker) return reject(new Error('⚠️ No available worker found!'));
-
+            
+            console.log(req)
             const requestData = {
                 url: req.url,
                 method: req.method,

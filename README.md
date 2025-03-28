@@ -46,13 +46,15 @@ api-gateway/
 │   │   │   │── MonitoringService.js    # Мониторинг и логирование (Наблюдатель)
 |   |   |   │── WebSocketProxyService.js # Будет перенаправлять WebSocket-соединения
 |   |   |   |── HttpServerFactory .js    # Фабрика отвечаеющая за создание сервера для обработки запросов.
-│   │   │── dtos/                       # Data Transfer Objects (DTO)
-│   │   │   │── RequestDto.js           # DTO для запросов
-│   │   │   │── ResponseDto.js          # DTO для ответов
 │   │── domain/                         # (Domain Layer - бизнес-логика)
+│   │   │── services/                    # сервисы домена (Объекты предметной области)
+│   │   │   │── GeoBalancingService.js   # Встроенная переадресация на ближайший сервер (geo-balancing)
 │   │   │── entities/                    # Сущности домена (Объекты предметной области)
 │   │   │   │── Request.js               # Объект запроса (Entity)
 │   │   │   │── Response.js              # Объект ответа (Entity)
+│   │   │── dtos/                       # Data Transfer Objects (DTO)
+│   │   │   │── RequestDto.js           # DTO для запросов
+│   │   │   │── ResponseDto.js          # DTO для ответов
 │   │   │── repositories/                # Репозитории (паттерн Repository)
 │   │   │   │── RouteRepository.js       # Доступ к маршрутам (Redis/Consul)
 │   │   │   │── UserRepository.js        # Доступ к данным пользователей (при необходимости)

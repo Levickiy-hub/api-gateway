@@ -5,9 +5,11 @@ import rateLimiter from '../../infrastructure/middleware/RateLimiterMiddleware.j
 import ProxyService from '../../application/services/ProxyService.js';
 import LoadBalancerServers from '../../application/services/LoadBalancerServerService.js'
 import CorsService from '../../application/services/CorsService.js';
+import GeoBalancingService from '../../domain/services/GeoBalancingService.js';
 
 const config = workerData.config;
 const routeRepository = new RouteRepository(config);
+const geoBalancing = new GeoBalancingService();
 
 const sharedArray = new Int32Array(workerData.sharedBuffer);
 const loadBalancing = new LoadBalancerServers(sharedArray);
@@ -18,8 +20,9 @@ parentPort.on('message', async (req) => {
         if (!targetServers) {
             return parentPort.postMessage({ statusCode: 404, body: 'Not Found' });
         }
-
-        const targetUrl = loadBalancing.selectTargetServer(targetServers.targets, targetServers.loadBalancingStrategy,req).url;
+        const targetServers1 = await geoBalancing.findServers(req, targetServers);
+        console.log(targetServers1)
+        const targetUrl = loadBalancing.selectTargetServer(targetServers.targets, targetServers.loadBalancingStrategy, req).url;
 
         const rateLimited = await rateLimiter(req, targetServers.rateLimit);
         if (rateLimited) {
