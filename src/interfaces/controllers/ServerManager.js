@@ -3,12 +3,14 @@ import WebSocketController from './WebSocketController.js'
 import SlowlorisService from '../../infrastructure/services/SlowlorisService.js';
 import { logger } from '../../infrastructure/services/LoggerService.js';
 import HttpServerFactory from '../../application/services/HttpServerFactory.js'
+import MonitoringService from '../../application/services/MonitoringService.js';
 
 export default class ServerManager {
     constructor(port, workerManager, configService, routeRepository) {
         this.port = port;
         this.workerManager = workerManager;
         this.webSocketController = new WebSocketController(routeRepository);
+        this.monitoringService = new MonitoringService();
         this.ConfigService = configService;
         this.routeRepository = routeRepository;
         this.server = null;
@@ -16,6 +18,15 @@ export default class ServerManager {
 
     async createHttpServer() {
         const requestHandler = async (req, res) => {
+            const start = Date.now();
+
+            if (req.url === '/metrics' && req.method === 'GET') {
+                const metrics = JSON.stringify(this.monitoringService.getMetrics(), null, 2);
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(metrics);
+                return;
+            }
+            
             try {
                 loggerMiddleware(req, res);
                 const workerResponse = await this.workerManager.sendRequestToWorker(req);
@@ -26,15 +37,18 @@ export default class ServerManager {
                 res.statusCode = 500;
                 res.end('Internal Server Error');
                 logger.error(error);
+            } finally {
+                const duration = Date.now() - start;
+                this.monitoringService.logRequest(req, res, duration);
             }
         };
-
         this.server = await HttpServerFactory.createServer(requestHandler);
     }
 
     setupWebSocket() {
         this.server.on('upgrade', (req, socket, head) => {
             logger.info(`🔗 WebSocket upgrade request: ${req.url}`);
+            this.monitoringService.incrementWebSocketConnections();
             this.webSocketController.handleUpgrade(req, socket, head);
         });
     }
