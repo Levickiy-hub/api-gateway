@@ -40,13 +40,11 @@ export default class MonitoringService {
             this.eventLoopDelay = entry.duration;
         });
         obs.observe({ entryTypes: ['measure'], buffered: true });
-
+    
         setInterval(() => {
-            const start = performance.now();
-            setImmediate(() => {
-                const end = performance.now();
-                performance.measure('eventLoopDelay', start, end);
-            });
+            performance.mark('start');
+            performance.mark('end');
+            performance.measure('eventLoopDelay', 'start', 'end');
         }, 1000);
     }
 
@@ -76,18 +74,24 @@ export default class MonitoringService {
         };
     }
 
-    getMetrics() {
-        const avgResponseTime = this.responseTimeData.length
-            ? this.responseTimeData.reduce((a, b) => a + b, 0) / this.responseTimeData.length
-            : 0;
-
-        return {
+    getMetrics( includeNodeMetrics = true, includeSystemMetrics = true ) {
+        const metrics = {
             requestsTotal: this.requestsTotal,
-            avgResponseTime: avgResponseTime.toFixed(2),
+            avgResponseTime: this.responseTimeData.length
+                ? this.responseTimeData.reduce((a, b) => a + b, 0) / this.responseTimeData.length
+                : 0,
             httpStatusCodes: this.httpStatusCodes,
             activeWebSocketConnections: this.activeWebSocketConnections,
-            system: this.getSystemMetrics(),
-            node: this.getNodeMetrics(),
         };
+
+        if (includeSystemMetrics) {
+            metrics.system = this.getSystemMetrics();
+        }
+
+        if (includeNodeMetrics) {
+            metrics.node = this.getNodeMetrics();
+        }
+
+        return metrics;
     }
 }
