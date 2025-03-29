@@ -7,10 +7,10 @@ export default class WorkerManager {
         this.configService = configService;
         this.workers = [];
 
-        // 🛠️ Создаем общую память для баланса нагрузки
+        // Создаем общую память для баланса нагрузки
         const bufferSize = 1024; // Можно увеличить при необходимости
-        this.sharedBuffer = new SharedArrayBuffer(bufferSize);
-        this.sharedArray = new Int32Array(this.sharedBuffer); // Используем Int32Array для совместимости с Atomics
+        this.loadBalancerBuffer = new SharedArrayBuffer(bufferSize);
+        this.geoCacheBuffer = new SharedArrayBuffer(bufferSize); // Кеш IP
 
         this.initWorkers(numWorkers);
     }
@@ -24,9 +24,10 @@ export default class WorkerManager {
     createWorker() {
         const worker = new Worker(new URL('./Worker.js', import.meta.url), {
             workerData: {
-                 config: this.configService.getConfig(),
-                 sharedBuffer: this.sharedBuffer
-                }
+                config: this.configService.getConfig(),
+                loadBalancerBuffer: this.loadBalancerBuffer,
+                geoCacheBuffer: this.geoCacheBuffer
+            }
         });
 
         worker.on('exit', (code) => {
@@ -53,16 +54,8 @@ export default class WorkerManager {
         return new Promise((resolve, reject) => {
             const worker = LoadBalancer.selectWorker(this.workers);
             if (!worker) return reject(new Error('⚠️ No available worker found!'));
-            
-            console.log(req)
-            const requestData = {
-                url: req.url,
-                method: req.method,
-                headers: req.headers,
-                body: req.body || null
-            };
 
-            worker.postMessage(requestData);
+            worker.postMessage(req);
             worker.once('message', (response) => {
                 LoadBalancer.workerFinished(worker);
                 resolve(response);

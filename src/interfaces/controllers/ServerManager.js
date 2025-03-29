@@ -4,6 +4,7 @@ import SlowlorisService from '../../infrastructure/services/SlowlorisService.js'
 import { logger } from '../../infrastructure/services/LoggerService.js';
 import HttpServerFactory from '../../application/services/HttpServerFactory.js'
 import MonitoringService from '../../application/services/MonitoringService.js';
+import RequestDTO from '../../domain/dtos/RequestDto.js';
 
 export default class ServerManager {
     constructor(port, workerManager, configService, routeRepository) {
@@ -20,7 +21,9 @@ export default class ServerManager {
         const requestHandler = async (req, res) => {
             const start = Date.now();
 
-            if (req.url === '/metrics' && req.method === 'GET') {
+            const requestDTO = new RequestDTO(req);
+
+            if (requestDTO.url === '/metrics' && requestDTO.method === 'GET') {
                 const metrics = JSON.stringify(this.monitoringService.getMetrics(), null, 2);
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(metrics);
@@ -29,7 +32,7 @@ export default class ServerManager {
             
             try {
                 loggerMiddleware(req, res);
-                const workerResponse = await this.workerManager.sendRequestToWorker(req);
+                const workerResponse = await this.workerManager.sendRequestToWorker(requestDTO);
                 res.statusCode = workerResponse.statusCode;
                 res.headers = workerResponse.headers;
                 res.end(workerResponse.body);

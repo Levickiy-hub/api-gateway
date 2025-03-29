@@ -41,9 +41,7 @@ export default class LoadBalancerServers {
     }
 
     ipHash(serversUrls, req) {
-        const clientIp = req.headers['x-forwarded-for'] ||
-            req.headers['x-real-ip'] ||
-            req.remoteAddress || 'unknown';
+        const clientIp = req.ip;
         if (!clientIp) return this.random(serversUrls);
         const hash = [...clientIp].reduce((acc, char) => acc + char.charCodeAt(0), 0);
         return serversUrls[hash % serversUrls.length];

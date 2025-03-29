@@ -9,40 +9,42 @@ import GeoBalancingService from '../../domain/services/GeoBalancingService.js';
 
 const config = workerData.config;
 const routeRepository = new RouteRepository(config);
-const geoBalancing = new GeoBalancingService();
 
-const sharedArray = new Int32Array(workerData.sharedBuffer);
-const loadBalancing = new LoadBalancerServers(sharedArray);
+const loadBalancerArray = new Int32Array(workerData.loadBalancerBuffer );
+const loadBalancing = new LoadBalancerServers(loadBalancerArray);
 
-parentPort.on('message', async (req) => {
+const geoCacheArray = new Int32Array(workerData.geoCacheBuffer)
+const geoBalancing = new GeoBalancingService(geoCacheArray);
+
+parentPort.on('message', async (requestDto) => {
     try {
-        const targetServers = routeRepository.getTarget(req.url);
+        const targetServers = routeRepository.getTarget(requestDto.url);
         if (!targetServers) {
             return parentPort.postMessage({ statusCode: 404, body: 'Not Found' });
         }
-        const targetServers1 = await geoBalancing.findServers(req, targetServers);
-        console.log(targetServers1)
-        const targetUrl = loadBalancing.selectTargetServer(targetServers.targets, targetServers.loadBalancingStrategy, req).url;
+        const geoBalancedServers = await geoBalancing.findServers(requestDto, targetServers);
 
-        const rateLimited = await rateLimiter(req, targetServers.rateLimit);
+        const targetUrl = loadBalancing.selectTargetServer(geoBalancedServers.targets, targetServers.loadBalancingStrategy, requestDto).url;
+
+        const rateLimited = await rateLimiter(requestDto, targetServers.rateLimit);
         if (rateLimited) {
-            return parentPort.postMessage({ statusCode: 429, body: 'Too Many Requests' });
+            return parentPort.postMessage({ statusCode: 429, body: 'Too Many requests' });
         }
 
-        if (CorsService.handlePreflight(req)) {
-            const corsHeaders = CorsService.getCorsHeaders(req, targetServers);
+        if (CorsService.handlePreflight(requestDto)) {
+            const corsHeaders = CorsService.getCorsHeaders(requestDto, targetServers);
             return parentPort.postMessage({ statusCode: 204, body: 'No Content', headers: corsHeaders })
         }
 
         const authService = new AuthService(targetServers.security.secretKey);
         if (!authService.isRoutePublic(targetServers)) {  // Проверяем, публичный ли маршрут
-            const authResult = authService.validateToken(req.headers['authorization']);
+            const authResult = authService.validateToken(requestDto.headers['authorization']);
             if (!authResult.isValid) {
                 return parentPort.postMessage({ statusCode: 403, body: 'Forbidden' });
             }
         }
 
-        const response = await ProxyService.proxyRequest({ ...req }, targetUrl);
+        const response = await ProxyService.proxyRequest({ ...requestDto }, targetUrl);
         parentPort.postMessage(response);
 
     } catch (error) {
