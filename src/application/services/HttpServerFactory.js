@@ -7,12 +7,22 @@ export default class HttpServerFactory {
         const tlsConfig = await tlsService.getConfig();
 
         if (tlsConfig) {
-            const http2Config ={
+            const http2Config = {
                 ...tlsConfig,
                 allowHTTP1: true,
+                settings: {
+                    maxConcurrentStreams: 100,
+                    maxSessionMemory: 65536,
+                    initialWindowSize: 6291456 
+                }
             };
             return createSecureServer(http2Config, requestHandler);
         }
-        return createServer(requestHandler);
+
+        const server = createServer(requestHandler);
+        server.keepAliveTimeout = 60000;
+        server.headersTimeout = 65000;
+
+        return server;
     }
 }
