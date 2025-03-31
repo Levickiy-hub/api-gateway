@@ -1,10 +1,9 @@
-import { loggerMiddleware } from '../../infrastructure/middleware/LoggerMiddleware.js'
 import WebSocketController from './WebSocketController.js'
 import SlowlorisService from '../../infrastructure/services/SlowlorisService.js';
 import { logger } from '../../infrastructure/services/LoggerService.js';
 import HttpServerFactory from '../../application/services/HttpServerFactory.js'
 import MonitoringService from '../../application/services/MonitoringService.js';
-import RequestDTO from '../../domain/dtos/RequestDto.js';
+import GatewayController from './GatewayController.js';
 
 export default class ServerManager {
     constructor(port, workerManager, configService, routeRepository) {
@@ -14,36 +13,13 @@ export default class ServerManager {
         this.monitoringService = new MonitoringService();
         this.ConfigService = configService;
         this.routeRepository = routeRepository;
+        this.gatewayController = new GatewayController(workerManager, this.monitoringService);
         this.server = null;
     }
 
     async createHttpServer() {
         const requestHandler = async (req, res) => {
-            const start = Date.now();
-
-            const requestDTO = new RequestDTO(req);
-
-            if (requestDTO.url === '/metrics' && requestDTO.method === 'GET') {
-                const metrics = JSON.stringify(this.monitoringService.getMetrics(), null, 2);
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(metrics);
-                return;
-            }
-            
-            try {
-                loggerMiddleware(req, res);
-                const workerResponse = await this.workerManager.sendRequestToWorker(requestDTO);
-                res.statusCode = workerResponse.statusCode;
-                res.headers = workerResponse.headers;
-                res.end(workerResponse.body);
-            } catch (error) {
-                res.statusCode = 500;
-                res.end('Internal Server Error');
-                logger.error(error);
-            } finally {
-                const duration = Date.now() - start;
-                this.monitoringService.logRequest(req, res, duration);
-            }
+            await this.gatewayController.handleRequest(req, res);
         };
         this.server = await HttpServerFactory.createServer(requestHandler);
     }
