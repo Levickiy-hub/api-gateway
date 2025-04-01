@@ -1,0 +1,12 @@
+node_modules
+build
+tests
+testservice
+src/logs
+src/infrastructure/config/cert
+.env
+.git
+.gitignore
+Dockerfile
+docker-compose.yml
+npm-debug.log

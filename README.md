@@ -80,13 +80,20 @@ api-gateway/
 │   │── interfaces/                        # (Interface Layer - контроллеры и API)
 │   │   │── controllers/                   # Контроллеры API Gateway
 │   │   │   │── GatewayController.js       # Контроллер запросов (Фабричный метод)
-│   │   │   │── AuthController.js          # Контроллер аутентификации
 |   |   |   │── WebSocketController.js     # WebSocket-контроллер
 |   |   |   │── ServerManager.js           # Логика запуска сервера и воркеров (Фасад)
 │   │── server.js                           # Точка входа в приложение (Entry Point)
 │── tests/                                  # Тесты (юнит и интеграционные)
 │   │── integration/                        # Интеграционные тесты
 │   │── unit/                               # Юнит-тесты
+│── k8s
+│   ├── deployment.yaml                     # Деплоймент в K8s
+│   ├── service.yaml                        # Сервис в K8s
+│   ├── hpa.yaml                            # Авто-масштабирование
+│── helm
+│   ├── api-gateway                         
+│       ├── Chart.yaml                      # Helm-чарт API Gateway
+│       ├── values.yaml                     # Параметры развертывания
 │── Dockerfile                              # Docker-контейнер
 │── docker-compose.yml                      # Запуск нескольких сервисов
 │── README.md                               # Документация
