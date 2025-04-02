@@ -5,6 +5,7 @@ export default class LoadBalancerServers {
 
     selectTargetServer(serversUrls, loadBalancingStrategy, req) {
         if (!serversUrls.length) return null;
+        if (serversUrls.length === 1) return serversUrls[0];
 
         switch (loadBalancingStrategy) {
             case 'round-robin':

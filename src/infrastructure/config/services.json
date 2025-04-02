@@ -1,6 +1,7 @@
 {
   "global": {
     "numWorkers": 4,
+    "workersBalancingStrategy":"round-robin",
     "rateLimit": {
       "maxRequests": 1000,
       "windowMs": 60000

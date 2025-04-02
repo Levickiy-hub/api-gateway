@@ -1,4 +1,5 @@
 import { logger } from "../services/LoggerService.js";
+
 export class ConfigValidator {
     static validateGlobalConfig(globalConfig) {
         if (!globalConfig) throw new Error('Global configuration is missing.');
@@ -7,7 +8,13 @@ export class ConfigValidator {
         if (typeof globalConfig.numWorkers !== 'number' || globalConfig.numWorkers < 1) {
             throw new Error('Invalid numWorkers: must be a number greater than 0.');
         }
-
+        
+        // Проверка стратегии балансировки между потоками
+        const validStrategies = ['round-robin', 'least-connections', 'random'];
+        if (!globalConfig.workersBalancingStrategy || !validStrategies.includes(globalConfig.workersBalancingStrategy)) {
+            logger.warn('Invalid or missing workers balancing strategy. Using default: "random".');
+            globalConfig.workersBalancingStrategy = 'random';
+        }
         // Проверка rateLimit
         if (!globalConfig.rateLimit) {
             throw new Error('Missing rateLimit configuration.');

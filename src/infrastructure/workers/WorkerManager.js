@@ -5,7 +5,9 @@ import { logger } from '../services/LoggerService.js';
 export default class WorkerManager {
     constructor(numWorkers, configService) {
         this.configService = configService;
+        this.balancingStrategy = configService.getGlobalConfig().workersBalancingStrategy || null;
         this.workers = [];
+        this.loadBalancer = new LoadBalancer();
 
         // Создаем общую память для баланса нагрузки
         const bufferSize = 1024; // Можно увеличить при необходимости
@@ -52,17 +54,17 @@ export default class WorkerManager {
         }
 
         return new Promise((resolve, reject) => {
-            const worker = LoadBalancer.selectWorker(this.workers);
+            const worker = this.loadBalancer.selectWorker(this.workers, this.balancingStrategy);
             if (!worker) return reject(new Error('⚠️ No available worker found!'));
 
             worker.postMessage(req);
             worker.once('message', (response) => {
-                LoadBalancer.workerFinished(worker);
+                this.loadBalancer.workerFinished(worker);
                 resolve(response);
             });
 
             worker.on('error', (err) => {
-                LoadBalancer.workerFinished(worker);
+                this.loadBalancer.workerFinished(worker);
                 reject(err);
             });
         });

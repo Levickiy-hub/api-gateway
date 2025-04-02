@@ -21,7 +21,7 @@ export default class MonitoringService {
         }
         this.httpStatusCodes[res.statusCode]++;
 
-        logger.info(`[${req.method}] ${req.url} - ${res.statusCode} (${duration}ms)`);
+        // logger.info(`[${req.method}] ${req.url} - ${res.statusCode} (${duration}ms)`);
     }
 
     incrementWebSocketConnections() {
