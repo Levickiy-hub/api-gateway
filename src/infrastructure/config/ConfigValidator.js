@@ -8,7 +8,7 @@ export class ConfigValidator {
         if (typeof globalConfig.numWorkers !== 'number' || globalConfig.numWorkers < 1) {
             throw new Error('Invalid numWorkers: must be a number greater than 0.');
         }
-        
+
         // Проверка стратегии балансировки между потоками
         const validStrategies = ['round-robin', 'least-connections', 'random'];
         if (!globalConfig.workersBalancingStrategy || !validStrategies.includes(globalConfig.workersBalancingStrategy)) {
@@ -167,6 +167,15 @@ export class ConfigValidator {
         return true;
     }
 
+    /**
+     * Валидирует предоставленный объект конфигурации.
+     * Этот метод выполняет валидацию как глобальной конфигурации, так и конфигурации сервисов.
+     * 
+     * @param {Object} config - Объект конфигурации, который будет валидироваться.
+     * 
+     * @throws {Error} Выбрасывает ошибку, если конфигурация невалидна.
+     * @returns {boolean} Возвращает `true`, если конфигурация валидна, иначе выбрасывает ошибку.
+     */
     static validateConfig(config) {
         try {
             this.validateGlobalConfig(config.global);
