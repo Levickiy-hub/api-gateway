@@ -7,8 +7,7 @@ export default class ConfigRepository extends EventEmitter {
     constructor(configPath) {
         super();
         this.configPath = configPath;
-        this.config = null;
-        this.initConfig(configPath);
+        this.config = this.initConfig(configPath);
     }
 
     loadConfig(filePath) {
@@ -22,28 +21,31 @@ export default class ConfigRepository extends EventEmitter {
     }
 
     initConfig(configPath) {
-        const config = this.loadConfig(configPath);
-        if (!ConfigValidator.validateConfig(config)) {
-            logger.error('Error validation')
-        };
-        
-        this.config = config;
+        try{
+            const config = this.loadConfig(configPath);
+            ConfigValidator.validateConfig(config);
+            return config;
+        }
+        catch(error){
+            if(!this.config){
+                throw new Error('Error init config.');
+            }
+            return null;
+        }
     }
 
     getConfig(){
         return this.config;
     }
-    // Возвращаем глобальную конфигурацию
+
     getGlobalConfig() {
         return this.config ? this.config.global : null;
     }
 
-    // Возвращаем конфигурацию конкретного сервиса
     getServiceConfig(serviceName) {
         return this.config && this.config.services ? this.config.services[serviceName] : null;
     }
 
-    // Возвращаем конфигурацию для конкретного эндпоинта
     getServiceEndpointConfig(serviceName, endpoint) {
         const service = this.getServiceConfig(serviceName);
         if (service && service.endpoints) {
@@ -52,12 +54,10 @@ export default class ConfigRepository extends EventEmitter {
         return null;
     }
 
-    // Метод для обновления конфигурации из файла
     updateConfig() {
-        this.loadConfig(); // Пере-загружаем конфигурацию
+        this.loadConfig();
     }
 
-    // Метод для проверки наличия конфигурации
     hasConfig() {
         return this.config !== null;
     }
