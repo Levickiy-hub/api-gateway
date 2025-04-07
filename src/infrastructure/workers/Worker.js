@@ -10,7 +10,7 @@ import GeoBalancingService from '../../domain/services/GeoBalancingService.js';
 const config = workerData.config;
 const routeRepository = new RouteRepository(config);
 
-const loadBalancerArray = new Int32Array(workerData.loadBalancerBuffer );
+const loadBalancerArray = new Int32Array(workerData.loadBalancerBuffer);
 const loadBalancing = new LoadBalancerServers(loadBalancerArray);
 
 const geoCacheArray = new Int32Array(workerData.geoCacheBuffer)
@@ -20,7 +20,7 @@ parentPort.on('message', async (requestDto) => {
     try {
         const targetServers = routeRepository.getTarget(requestDto.url);
         if (!targetServers) {
-            return parentPort.postMessage({ statusCode: 404, body: 'Not Found' });
+            return parentPort.postMessage({ id: requestDto.id, statusCode: 404, body: 'Not Found' });
         }
         const geoBalancedServers = await geoBalancing.findServers(requestDto, targetServers);
 
@@ -28,30 +28,29 @@ parentPort.on('message', async (requestDto) => {
 
         const rateLimited = await rateLimiter(requestDto, targetServers.rateLimit);
         if (rateLimited) {
-            return parentPort.postMessage({ statusCode: 429, body: 'Too Many requests' });
+            return parentPort.postMessage({ id: requestDto.id, statusCode: 429, body: 'Too Many requests' });
         }
 
         if (CorsService.handlePreflight(requestDto)) {
             const corsHeaders = CorsService.getCorsHeaders(requestDto, targetServers);
-            return parentPort.postMessage({ statusCode: 204, body: 'No Content', headers: corsHeaders })
+            return parentPort.postMessage({ id: requestDto.id, statusCode: 204, body: 'No Content', headers: corsHeaders })
         }
 
         const authService = new AuthService(targetServers.security.secretKey);
         if (!authService.isRoutePublic(targetServers)) {  // Проверяем, публичный ли маршрут
             const authResult = authService.validateToken(requestDto.headers['authorization']);
             if (!authResult.isValid) {
-                return parentPort.postMessage({ statusCode: 403, body: 'Forbidden' });
+                return parentPort.postMessage({ id: requestDto.id, statusCode: 403, body: 'Forbidden' });
             }
         }
-
         const response = await ProxyService.proxyRequest({ ...requestDto }, targetUrl);
-        parentPort.postMessage(response);
+        parentPort.postMessage({ id: requestDto.id, ...response });
 
     } catch (error) {
         if (error?.message.includes('Target not found')) {
-            parentPort.postMessage({ statusCode: 404, body: 'Not Found' });
+            parentPort.postMessage({ id: requestDto.id, statusCode: 404, body: 'Not Found' });
             return;
         }
-        parentPort.postMessage({ statusCode: 500, body: 'Internal Server Error' });
+        parentPort.postMessage({ id: requestDto.id, statusCode: 500, body: 'Internal Server Error' });
     }
 });

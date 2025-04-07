@@ -1,5 +1,8 @@
+import UUIDService from "../../infrastructure/services/UUIDService.js";
+
 export default class RequestDTO {
     constructor(req) {
+        this.id = UUIDService.generateUUID();
         this.url = req.url;
         this.method = req.method;
         this.headers = req.headers;

@@ -7,6 +7,8 @@ export default class WorkerManager {
         this.configService = configService;
         this.balancingStrategy = configService.getGlobalConfig().workersBalancingStrategy || null;
         this.workers = [];
+        this.pendingRequests = new Map();
+
         this.loadBalancer = new LoadBalancer();
 
         // Создаем общую память для баланса нагрузки
@@ -44,10 +46,23 @@ export default class WorkerManager {
             this.createWorker();
         });
 
-        worker.pendingTasks = 0; // Добавляем счетчик запросов
+        worker.on('message', (response) => {
+            const { id } = response;
+            const resolve = this.pendingRequests.get(id);
+            if (resolve) {
+                resolve(response);
+                this.pendingRequests.delete(id);
+                this.loadBalancer.workerFinished(worker);
+            } else {
+                logger.warn(`No pending request found for response with id: ${id}`);
+            }
+        });
+
+        worker.pendingTasks = 0;
         this.workers.push(worker);
     }
 
+    
     async sendRequestToWorker(req) {
         if (this.workers.length === 0) {
             return Promise.reject(new Error('⚠️ No available workers!'));
@@ -56,17 +71,15 @@ export default class WorkerManager {
         return new Promise((resolve, reject) => {
             const worker = this.loadBalancer.selectWorker(this.workers, this.balancingStrategy);
             if (!worker) return reject(new Error('⚠️ No available worker found!'));
-
-            worker.postMessage(req);
-            worker.once('message', (response) => {
-                this.loadBalancer.workerFinished(worker);
-                resolve(response);
-            });
-
-            worker.on('error', (err) => {
+            try{
+                this.pendingRequests.set(req.id, resolve);
+                worker.postMessage(req);
+            }
+            catch(err){
+                this.pendingRequests.delete(req.id);
                 this.loadBalancer.workerFinished(worker);
                 reject(err);
-            });
+            }
         });
     }
 }
